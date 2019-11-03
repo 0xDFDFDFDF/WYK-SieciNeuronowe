@@ -44,7 +44,109 @@
 Dokument ten jest pomocą dla prowadzącego i nie zastępuje w żaden sposób podręcznika akademickiego.
 Źródła: M. Nielsen, \emph{Neural Networks and Deep Learning}\footnote{\url{http://neuralnetworksanddeeplearning.com}}
 
-\section{Wprowadzenie}
+\section{Wprowadzenie do sieci neuronowoch}
+\subsection{Wielowarstwowy perceptron}
+\begin{eqnarray}
+  \mbox{output} & = & \left\{ \begin{array}{ll}
+      0 & \mbox{if } \sum_j w_j x_j \leq \mbox{ threshold} \\
+      1 & \mbox{if } \sum_j w_j x_j > \mbox{ threshold}
+      \end{array} \right.
+\end{eqnarray}
+
+\begin{eqnarray}
+  \mbox{output} = \left\{ 
+    \begin{array}{ll} 
+      0 & \mbox{if } w\cdot x + b \leq 0 \\
+      1 & \mbox{if } w\cdot x + b > 0
+    \end{array}
+  \right.
+\end{eqnarray}
+
+\subsection{Sigmoid}
+\begin{eqnarray} 
+  \sigma(z) \equiv \frac{1}{1+e^{-z}}.
+\end{eqnarray}
+
+\begin{eqnarray} 
+  \frac{1}{1+\exp(-\sum_j w_j x_j-b)}.
+\end{eqnarray}
+
+\begin{eqnarray} 
+  \Delta \mbox{output} \approx \sum_j \frac{\partial \, \mbox{output}}{\partial w_j}
+  \Delta w_j + \frac{\partial \, \mbox{output}}{\partial b} \Delta b,
+\end{eqnarray}
+
+\subsection{Funkcja kosztu oraz gradient}
+
+\begin{eqnarray}  C(w,b) \equiv
+  \frac{1}{2n} \sum_x \| y(x) - a\|^2.
+\end{eqnarray}
+
+\begin{eqnarray} 
+  \Delta C \approx \frac{\partial C}{\partial v_1} \Delta v_1 +
+  \frac{\partial C}{\partial v_2} \Delta v_2.
+\end{eqnarray}
+
+\begin{eqnarray} 
+  \nabla C \equiv \left( \frac{\partial C}{\partial v_1}, 
+  \frac{\partial C}{\partial v_2} \right)^T.
+\end{eqnarray}
+
+\begin{eqnarray} 
+  \Delta C \approx \nabla C \cdot \Delta v.
+\end{eqnarray}
+
+\begin{eqnarray} 
+  \Delta v = -\eta \nabla C,
+\end{eqnarray}
+
+\begin{eqnarray}
+  v \rightarrow v' = v -\eta \nabla C.
+\end{eqnarray}
+
+Ogólnie:
+\begin{eqnarray} 
+  \Delta C \approx \nabla C \cdot \Delta v,
+\end{eqnarray}
+
+\begin{eqnarray}
+  \nabla C \equiv \left(\frac{\partial C}{\partial v_1}, \ldots, 
+  \frac{\partial C}{\partial v_m}\right)^T.
+\end{eqnarray}
+
+\begin{eqnarray}
+  \Delta v = -\eta \nabla C,
+\end{eqnarray}
+
+\begin{eqnarray}
+  v \rightarrow v' = v-\eta \nabla C.
+\end{eqnarray}
+
+\begin{eqnarray}
+  w_k & \rightarrow & w_k' = w_k-\eta \frac{\partial C}{\partial w_k} \\
+  b_l & \rightarrow & b_l' = b_l-\eta \frac{\partial C}{\partial b_l}.
+\end{eqnarray}
+
+\begin{eqnarray}
+  \frac{\sum_{j=1}^m \nabla C_{X_{j}}}{m} \approx \frac{\sum_x \nabla C_x}{n} = \nabla C,
+\end{eqnarray}
+
+\begin{eqnarray}
+  \nabla C \approx \frac{1}{m} \sum_{j=1}^m \nabla C_{X_{j}},
+\end{eqnarray}
+
+\begin{eqnarray} 
+  w_k & \rightarrow & w_k' = w_k-\frac{\eta}{m}
+  \sum_j \frac{\partial C_{X_j}}{\partial w_k} \\
+  b_l & \rightarrow & b_l' = b_l-\frac{\eta}{m}
+  \sum_j \frac{\partial C_{X_j}}{\partial b_l},
+\end{eqnarray}
+
+\subsection{Implementacja}
+
+\begin{minted}{bash}
+git clone https://github.com/mnielsen/neural-networks-and-deep-learning.git
+\end{minted}
 
 
 \end{document}
