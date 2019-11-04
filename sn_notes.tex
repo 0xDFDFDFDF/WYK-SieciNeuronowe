@@ -270,20 +270,27 @@ Nie ma żadnych przeszkód do zastosowania tego algorytmu dla naszej sieci:
 
 \subsection{Stochastyczny spadek gradientu}
 
+Zauważmy, że funkcja kosztu jest postaci $C = \frac{1}{n} \sum_x C_x$, przez co średni koszt jest równy $C_x \equiv \frac{\|y(x)-a\|^2}{2}$ dla każdej porcji danych.
+W praktyce nie liczy się gradientu dla każdej porcji $\nabla C_x$ i jej uśrednia $\nabla C = \frac{1}{n}\sum_x \nabla C_x$ -- trwa to zbyt długo.
+\textbf{Stochastyczny spadek gradientu} pozwala na uniknięcie tego problemu -- liczymy gradient dla losowo wybranych $m$ porcji danych.
+Oznaczamy je jako $X_1, X_2, \ldots, X_m$ i nazywamy \textbf{minipróbką} (ang. \emph{mini-batch}).
+Jeżeli $m$ będzie wystarczająco duże, to:
 \begin{eqnarray}
-  \frac{\sum_{j=1}^m \nabla C_{X_{j}}}{m} \approx \frac{\sum_x \nabla C_x}{n} = \nabla C,
+  \frac{\sum_{j=1}^m \nabla C_{X_{j}}}{m} \approx \frac{\sum_x \nabla C_x}{n} = \nabla C.
 \end{eqnarray}
-
+Zamieniając strony:
 \begin{eqnarray}
-  \nabla C \approx \frac{1}{m} \sum_{j=1}^m \nabla C_{X_{j}},
+  \nabla C \approx \frac{1}{m} \sum_{j=1}^m \nabla C_{X_{j}}.
 \end{eqnarray}
-
+Wstawiając do reguły uczenia naszej sieci neuronowej mamy finalnie:
 \begin{eqnarray} 
   w_k & \rightarrow & w_k' = w_k-\frac{\eta}{m}
   \sum_j \frac{\partial C_{X_j}}{\partial w_k} \\
   b_l & \rightarrow & b_l' = b_l-\frac{\eta}{m}
   \sum_j \frac{\partial C_{X_j}}{\partial b_l},
 \end{eqnarray}
+gdzie sumy po $X_j$ odnoszą się do aktualnej minipróbki.
+Kiedy przeiterujemy po wszystkich dostępnych porcjach danych, to powiemy, że skończyliśmy \textbf{epokę} (ang. \emph{epoch}) treningu.
 
 \subsection{Implementacja}
 
