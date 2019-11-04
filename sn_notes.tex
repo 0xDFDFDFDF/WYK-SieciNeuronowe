@@ -183,7 +183,7 @@ W problemie klasyfikacji możemy dobrać liczbę neuronów na wyjściu tak, żeb
 
 
 
-\subsection{Funkcja kosztu oraz gradient}
+\subsection{Błąd średniokwadratowy jako Funkcja kosztu}
 Aby rozwiązać problem rozpoznawania odręcznie zapisanych cyfr, wprowadźmy najpierw kilka oznaczeń.
 Niech $x$ to będzie nasze wejście, tym razem wektor o 784 wymiarach.
 Wyjście oznaczymy przez $y=y(x)$, gdzie np. $y(x) = (0, 0, 0, 0, 0, 0, 1, 0, 0, 0)^T$ oznacza cyfrę 6.
@@ -202,50 +202,73 @@ Tym samym określiliśmy \textbf{kryterium optymalizacyjne} naszego algorytmu do
 	\caption{Wizualizacja wartości funkcji kosztu dla dwóch wymiarów. Źródło: Nielsen (2015)}
 \end{figure}
 
+
+\subsection{Spadek gradientu}
+
+Wyznaczenie \textbf{globalnego minimum} dla funkcji kosztu w sposób analityczny jest możliwe dla funkcji niewielu zmiennych.
+Dla funkcji wielu zmiennych jest to zadanie bardzo trudne.
+Możemy się jednak posłużyć prostą heurystyką w poszukiwaniu lokalnego minimum, które często okazuje się być całkiem niezłe.
+Wiedząc, że
 \begin{eqnarray} 
   \Delta C \approx \frac{\partial C}{\partial v_1} \Delta v_1 +
-  \frac{\partial C}{\partial v_2} \Delta v_2.
+  \frac{\partial C}{\partial v_2} \Delta v_2
 \end{eqnarray}
-
+oznaczmy $\Delta v \equiv (\Delta v_1, \Delta v_2)^T$.
+Będziemy szukać takich $v$, które sprawią, że $\Delta C$ jest ujemne.
+Następnie oznaczmy \textbf{gradient} jako $\nabla C$:
 \begin{eqnarray} 
   \nabla C \equiv \left( \frac{\partial C}{\partial v_1}, 
   \frac{\partial C}{\partial v_2} \right)^T.
 \end{eqnarray}
-
+Tym samym możemy zapisać wszystko jako:
 \begin{eqnarray} 
   \Delta C \approx \nabla C \cdot \Delta v.
 \end{eqnarray}
-
-\begin{eqnarray} 
+Załóżmy teraz, że:
+\begin{equation} 
   \Delta v = -\eta \nabla C,
-\end{eqnarray}
-
+  \label{eq:delta_v}
+\end{equation}
+gdzie $\eta$ to pewna wartość (zazwyczaj niewielka, np. 0,001) określająca \textbf{szybkość uczenia się}.
+Wiemy, że $\Delta C \approx -\eta \nabla C \cdot \nabla C = -\eta \|\nabla C\|^2$. 
+Ponadto, $\| \nabla C \|^2 \geq 0$, co gwarantuje, że $\Delta C \leq 0$ -- a taka własność jest bardzo oczekiwana w naszym problemie.
+Tym samym jeżeli będziemy korzystać z równania \ref{eq:delta_v} do obliczenia $\Delta v$, to będziemy przesuwać naszą wirtualną piłkę z $v$ do $v'$ w następujący sposób:
 \begin{eqnarray}
   v \rightarrow v' = v -\eta \nabla C.
 \end{eqnarray}
+\begin{figure}[!htpb]
+	\centering
+	\includegraphics[width=.7\linewidth]{figures/valley_with_ball}
+	\caption{Wizualizacja wartości funkcji kosztu dla dwóch wymiarów -- ilustracja spadku gradientu. Źródło: Nielsen (2015)}
+\end{figure}
 
-Ogólnie:
+
+Dla funkcji wielu zmiennych wszystko działa tak samo, tj. dla $\Delta v = (\Delta v_1, \ldots, \Delta v_m)^T$ mamy:
 \begin{eqnarray} 
   \Delta C \approx \nabla C \cdot \Delta v,
 \end{eqnarray}
-
+a gradient definiujemy w sposób następujący:
 \begin{eqnarray}
   \nabla C \equiv \left(\frac{\partial C}{\partial v_1}, \ldots, 
   \frac{\partial C}{\partial v_m}\right)^T.
 \end{eqnarray}
-
+Z taką definicją dojdziemy do tych samych wniosków:
 \begin{eqnarray}
   \Delta v = -\eta \nabla C,
 \end{eqnarray}
-
+co pozwala wyprowadzić regułę \textbf{spadku gradientu}:
 \begin{eqnarray}
   v \rightarrow v' = v-\eta \nabla C.
 \end{eqnarray}
 
+Nie ma żadnych przeszkód do zastosowania tego algorytmu dla naszej sieci:
 \begin{eqnarray}
   w_k & \rightarrow & w_k' = w_k-\eta \frac{\partial C}{\partial w_k} \\
   b_l & \rightarrow & b_l' = b_l-\eta \frac{\partial C}{\partial b_l}.
 \end{eqnarray}
+
+
+\subsection{Stochastyczny spadek gradientu}
 
 \begin{eqnarray}
   \frac{\sum_{j=1}^m \nabla C_{X_{j}}}{m} \approx \frac{\sum_x \nabla C_x}{n} = \nabla C,
