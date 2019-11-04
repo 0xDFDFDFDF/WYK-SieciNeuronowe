@@ -51,7 +51,7 @@ Perceptron, trzy binarne wagi $x_1, x_2, x_3$, binarne wyjście.
 \begin{figure}[htpb]
 	\centering
 	\includegraphics[width=.3\linewidth]{figures/tikz0}
-	\caption{Perceptron z trzema binarnymi wejściami}
+	\caption{Perceptron z trzema binarnymi wejściami. Źródło: Nielsen (2015)}
 \end{figure}
 Możemy wprowadzić wagi $w_i$, które określą znaczenie każdego z wejść.
 Jego wyjście będzie teraz równe ważonej sumie $\sum_j w_j x_j$.
@@ -75,8 +75,18 @@ Oznaczymy odpowiedzi na te pytania. Niech $x_1 = 1$ jeżeli pogoda jest dobra, $
 Podobnie postąpimy z kolejnymi pytaniami.
 Jeżeli bardzo chcemy iść na festiwal (więc możemy iść sami i zrezygnować z wygód komunikacji), ale nie znosimy złej pogody, to możemy to oznaczyć jako $w_1=6$, $w_2=2$, $w_3=2$.
 Jeżeli ustawimy próg w sieci równy 5, to faktycznie odzwierciedli to nasze przekonania -- partner/partnerka oraz komunikacja miejska nie mają wpływu na wynik, ma go tylko pogoda.
+Gdybyśmy natomiast zmniejszyli próg do 3, byłby to model, który reprezentowałby większą skłonność do wyjścia na festiwal.
 \end{example}
 
+Uprośćmy teraz nieco notację, a dokładniej warunek $\sum_j w_j x_j > \mbox{threshold}$.
+Najpierw zapiszmy $\sum_j w_j x_j$ jako iloczyn skalarny $w \cdot x \equiv \sum_j w_j x_j$.
+Próg (threshold) zastąpimy przez $b$ (ang. \emph{bias}), co fachowo nazywamy parametrem obciążenia transformacji afinicznej, gdzie $b \equiv -\mbox{threshold}$.
+
+\begin{figure}[htpb]
+	\centering
+	\includegraphics[width=.5\linewidth]{figures/tikz1}
+	\caption{Prosta sieć. Źródło: Nielsen (2015)}
+\end{figure}
 
 \begin{eqnarray}
   \mbox{output} = \left\{ 
@@ -87,7 +97,8 @@ Jeżeli ustawimy próg w sieci równy 5, to faktycznie odzwierciedli to nasze pr
   \right.
 \end{eqnarray}
 
-\subsection{Sigmoid}
+
+\subsection{Funkcja sigmoidalana}
 \begin{eqnarray} 
   \sigma(z) \equiv \frac{1}{1+e^{-z}}.
 \end{eqnarray}
