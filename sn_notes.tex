@@ -292,7 +292,7 @@ Wstawiając do reguły uczenia naszej sieci neuronowej mamy finalnie:
 gdzie sumy po $X_j$ odnoszą się do aktualnej minipróbki.
 Kiedy przeiterujemy po wszystkich dostępnych porcjach danych, to powiemy, że skończyliśmy \textbf{epokę} (ang. \emph{epoch}) treningu.
 
-
+\section{Algorytm propagacji wstecznej}
 
 \subsection{Zapis macierzowy}
 Niech $w_{jk}^{l}$ oznacza wagę dla połączenia z $k$-tego neuronu w $(l-1)$-tej warstwie do $j$-tego neuronu w $l$-tej warstwie.
@@ -326,6 +326,38 @@ dzięki czemu możemy zapisać całe równanie w zgrabnej formie:
 \end{eqnarray}
 W ogólności będziemy najpierw liczyć $z^l \equiv w^l a^{l-1}+b^l$, które oznacza ważone wejście do warstwy $l$. Oczywiście $a^l =
 \sigma(z^l)$.
+
+\subsection{Założenia dotyczące funkcji kosztu}
+Zapiszmy funkcję kosztu używając macierzy:
+\begin{eqnarray}
+  C = \frac{1}{2n} \sum_x \|y(x)-a^L(x)\|^2,
+\end{eqnarray}
+gdzie $L$ to liczba warstw (a więc chodzi o ostatnią warstwę).
+
+Aby algorytm propagacji wstecznej zadziałał, musimy poczynić 2 założenia o (dowolnej) funkcji kosztu. Pierwsze z nich mówi, że $C = \frac{1}{n} \sum_x C_x$ (ponieważ algorytm pozwala nam liczyć pochodną cząstkową tylko dla pojedynczych przykładów).
+Drugie założenie mówi, że koszt musi dać się zapisać jako funkcja wyjść sieci neuronowej.
+W naszym przypadku
+\begin{eqnarray}
+  C = \frac{1}{2} \|y-a^L\|^2 = \frac{1}{2} \sum_j (y_j-a^L_j)^2,
+\end{eqnarray}
+co rozwiązuje sprawę.
+\begin{figure}[!htpb]
+	\centering
+	\includegraphics[width=.5\linewidth]{figures/tikz18}
+	\caption{Drugie założenie o funkcji kosztu. Źródło: Nielsen (2015)}
+\end{figure}
+
+\subsection{Propagacja wsteczna}
+
+Zdefiniujmy \textbf{iloczyn Hadamarda} $s \odot t$ jako iloczyn po elementach obu wektorów, tj. $(s \odot t)_j = s_j t_j$, np.:
+\begin{eqnarray}
+\left[\begin{array}{c} 1 \\ 2 \end{array}\right] 
+  \odot \left[\begin{array}{c} 3 \\ 4\end{array} \right]
+= \left[ \begin{array}{c} 1 * 3 \\ 2 * 4 \end{array} \right]
+= \left[ \begin{array}{c} 3 \\ 8 \end{array} \right].
+\end{eqnarray}
+
+
 
 
 
