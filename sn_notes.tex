@@ -42,16 +42,41 @@
 \vspace{.25in}
 
 Dokument ten jest pomocą dla prowadzącego i nie zastępuje w żaden sposób podręcznika akademickiego.
-Źródła: M. Nielsen, \emph{Neural Networks and Deep Learning}\footnote{\url{http://neuralnetworksanddeeplearning.com}}
+W dużej części bazuje on na: M. Nielsen, \emph{Neural Networks and Deep Learning}\footnote{\url{http://neuralnetworksanddeeplearning.com}}, Determination Press, 2015.
 
-\section{Wprowadzenie do sieci neuronowoch}
+\section{Wprowadzenie do sieci neuronowych}
 \subsection{Wielowarstwowy perceptron}
+
+Perceptron, trzy binarne wagi $x_1, x_2, x_3$, binarne wyjście.
+\begin{figure}[htpb]
+	\centering
+	\includegraphics[width=.3\linewidth]{figures/tikz0}
+	\caption{Perceptron z trzema binarnymi wejściami}
+\end{figure}
+Możemy wprowadzić wagi $w_i$, które określą znaczenie każdego z wejść.
+Jego wyjście będzie teraz równe ważonej sumie $\sum_j w_j x_j$.
+W ogólności możemy to zapisać jako:
 \begin{eqnarray}
   \mbox{output} & = & \left\{ \begin{array}{ll}
       0 & \mbox{if } \sum_j w_j x_j \leq \mbox{ threshold} \\
       1 & \mbox{if } \sum_j w_j x_j > \mbox{ threshold}
       \end{array} \right.
 \end{eqnarray}
+
+\begin{example}
+Rozważmy problem decyzyjny -- czy wybrać się na festiwal?
+Załóżmy, że zadecydują o tym trzy czynniki:
+\begin{itemize}
+	\item Czy pogoda jest dobra?
+	\item Czy mój chłopak/dziewczyna pójdzie ze mną?
+	\item Czy da się tam dojechać komunikacją miejską?
+\end{itemize}
+Oznaczymy odpowiedzi na te pytania. Niech $x_1 = 1$ jeżeli pogoda jest dobra, $x_1 = 0$ w przeciwnym razie.
+Podobnie postąpimy z kolejnymi pytaniami.
+Jeżeli bardzo chcemy iść na festiwal (więc możemy iść sami i zrezygnować z wygód komunikacji), ale nie znosimy złej pogody, to możemy to oznaczyć jako $w_1=6$, $w_2=2$, $w_3=2$.
+Jeżeli ustawimy próg w sieci równy 5, to faktycznie odzwierciedli to nasze przekonania -- partner/partnerka oraz komunikacja miejska nie mają wpływu na wynik, ma go tylko pogoda.
+\end{example}
+
 
 \begin{eqnarray}
   \mbox{output} = \left\{ 
