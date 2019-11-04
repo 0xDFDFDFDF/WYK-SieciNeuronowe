@@ -47,7 +47,7 @@ W dużej części bazuje on na: M. Nielsen, \emph{Neural Networks and Deep Learn
 \section{Wprowadzenie do sieci neuronowych}
 \subsection{Wielowarstwowy perceptron}
 
-Zdefiniujmy \textbf{perceptron}, który dla trzech binarnych wagi $x_1, x_2, x_3$, gdzie każda z nich to 0 lub 1, zwraca binarne wyjście (czyli również 0 lub 1).
+Zdefiniujmy \textbf{perceptron}, matematyczną reprezentację neuronu, który dla trzech binarnych wagi $x_1, x_2, x_3$, gdzie każda z nich to 0 lub 1, zwraca binarne wyjście (czyli również 0 lub 1).
 \begin{figure}[htpb]
 	\centering
 	\includegraphics[width=.3\linewidth]{figures/tikz0}
@@ -181,11 +181,26 @@ W problemie klasyfikacji możemy dobrać liczbę neuronów na wyjściu tak, żeb
 	\caption{Architektura sieci. Źródło: Nielsen (2015)}
 \end{figure}
 
-\subsection{Funkcja kosztu oraz gradient}
 
+
+\subsection{Funkcja kosztu oraz gradient}
+Aby rozwiązać problem rozpoznawania odręcznie zapisanych cyfr, wprowadźmy najpierw kilka oznaczeń.
+Niech $x$ to będzie nasze wejście, tym razem wektor o 784 wymiarach.
+Wyjście oznaczymy przez $y=y(x)$, gdzie np. $y(x) = (0, 0, 0, 0, 0, 0, 1, 0, 0, 0)^T$ oznacza cyfrę 6.
+Wprowadźmy teraz \textbf{funkcję kosztu}:
 \begin{eqnarray}  C(w,b) \equiv
   \frac{1}{2n} \sum_x \| y(x) - a\|^2.
 \end{eqnarray}
+We wzorze tym $a$ oznacza wektor wyjść z naszej sieci dla $x$, natomiast $n$ oznacza liczbę rozpatrywanych przypadków testowych dla sieci (tj. liczbę cyfr, na których będziemy ją uczyć).
+Ta funkcja jest nazywana często \textbf{błędem średniokwadratowym} (ang. \emph{MSE}).
+Jej podstawowa własność to nieujemność.
+Warto zauważyć, że jeżeli $y(x)$ jest podobne do $a$, to koszt powinien być blisko zera.
+Tym samym określiliśmy \textbf{kryterium optymalizacyjne} naszego algorytmu do trenowania sieci neuronowej -- chcemy, aby zminimalizować koszt $C(w, b)$.
+\begin{figure}[!htpb]
+	\centering
+	\includegraphics[width=.7\linewidth]{figures/valley}
+	\caption{Wizualizacja wartości funkcji kosztu dla dwóch wymiarów. Źródło: Nielsen (2015)}
+\end{figure}
 
 \begin{eqnarray} 
   \Delta C \approx \frac{\partial C}{\partial v_1} \Delta v_1 +
