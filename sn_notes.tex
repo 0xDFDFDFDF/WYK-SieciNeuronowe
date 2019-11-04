@@ -357,6 +357,44 @@ Zdefiniujmy \textbf{iloczyn Hadamarda} $s \odot t$ jako iloczyn po elementach ob
 = \left[ \begin{array}{c} 3 \\ 8 \end{array} \right].
 \end{eqnarray}
 
+Algorytm propagacji wstecznej pozwoli nam obliczyć $\partial C / \partial w^l_{jk}$ oraz $\partial C / \partial b^l_{j}$ -- potrzebujemy jednak najpierw pośrednich wartości dla wszystkich neuronów.
+Oznaczmy $\delta_j^l$ jako błąd w $j$-tym neuronie w $l$-tej warstwie.
+Załóżmy, że ten błąd jest reprezentowany przez pewnego demona, który dodaje zawsze $\Delta z^l_j$ do ważonego wejścia danego neuronu, przez co zwraca on $\sigma(z^l_j+\Delta z^l_j)$ zamiast $\sigma(z^l_j)$.
+\begin{figure}[!htpb]
+	\centering
+	\includegraphics[width=.5\linewidth]{figures/tikz19}
+	\caption{Demon w $j$-tym neuronie $l$-tej warstwy naszej sieci. Źródło: Nielsen (2015)}
+\end{figure}
+Demon jest po naszej stronie -- stara się dorzucić do wejścia takie wartości, które zminimalizują koszt. 
+Tak więc:
+\begin{eqnarray} 
+  \delta^l_j \equiv \frac{\partial C}{\partial z^l_j}.
+\end{eqnarray}
+Pokażmy teraz 4 równania związane z propagacją wsteczną.
+
+\subsubsection{Błąd na wyjściu sieci}
+Pierwsze równanie prezentuje się następująco:
+\begin{eqnarray} 
+  \delta^L_j = \frac{\partial C}{\partial a^L_j} \sigma'(z^L_j).
+\end{eqnarray}
+Wyrażenie po lewej mierzy jak szybko zmienia się koszt w ostatniej warstwie, a to po prawej robi to samo z aktywacją.
+Dla naszej funkcji $\partial C / \partial a^L_j = (a_j^L-y_j)$.
+Możemy wszystko zapisać jako:
+\begin{eqnarray} 
+  \delta^L = \nabla_a C \odot \sigma'(z^L),
+\end{eqnarray}
+gdzie $\nabla_a C$ jest wektorem pochodnych cząstkowych ${\partial C}/{\partial a^L_j}$.
+Innymi słowy:
+\begin{eqnarray} 
+  \delta^L = (a^L-y) \odot \sigma'(z^L).
+\end{eqnarray}
+\subsubsection{Błąd $\delta^l$ w stosunku do błędu $\delta^(l+1)$}
+Mamy:
+\begin{eqnarray} 
+  \delta^l = ((w^{l+1})^T \delta^{l+1}) \odot \sigma'(z^l),
+\end{eqnarray}
+Jeżeli znamy błąd w kolejnej warstwie ($\delta^(l+1)$), to możemy obliczyć $\delta^l$ -- niejako propagując błąd wstecz (od końca).
+
 
 
 
