@@ -183,7 +183,7 @@ W problemie klasyfikacji możemy dobrać liczbę neuronów na wyjściu tak, żeb
 
 
 
-\subsection{Błąd średniokwadratowy jako Funkcja kosztu}
+\subsection{Błąd średniokwadratowy jako funkcja kosztu}
 Aby rozwiązać problem rozpoznawania odręcznie zapisanych cyfr, wprowadźmy najpierw kilka oznaczeń.
 Niech $x$ to będzie nasze wejście, tym razem wektor o 784 wymiarach.
 Wyjście oznaczymy przez $y=y(x)$, gdzie np. $y(x) = (0, 0, 0, 0, 0, 0, 1, 0, 0, 0)^T$ oznacza cyfrę 6.
@@ -292,11 +292,139 @@ Wstawiając do reguły uczenia naszej sieci neuronowej mamy finalnie:
 gdzie sumy po $X_j$ odnoszą się do aktualnej minipróbki.
 Kiedy przeiterujemy po wszystkich dostępnych porcjach danych, to powiemy, że skończyliśmy \textbf{epokę} (ang. \emph{epoch}) treningu.
 
-\subsection{Implementacja}
+\subsection{Implementacja prostej sieci neuronowej w NumPy}
+Wejdź na tą\footnote{\url{https://colab.research.google.com/drive/1sVY_zZscj5Xa9XWRrQxf5bBqiv4C4Bwu}} stronę. 
+Jest tu zalążek kodu służący do pobierania danych MNIST -- jest tam 60 tys. przykładów.
+Pełne rozwiązanie znajdziesz tutaj\footnote{\url{https://colab.research.google.com/drive/1ngZmy01o3GtuwWUj4p5Xrbw7dQd7nd3D}}.
+Oryginalny kod jest wzięty z tej\footnote{\url{https://github.com/mnielsen/neural-networks-and-deep-learning.git}} strony.
 
-\begin{minted}{bash}
-git clone https://github.com/mnielsen/neural-networks-and-deep-learning.git
+Zdefiniujmy najpierw funkcję sigmoidalną:
+\begin{minted}{python}
+def sigmoid(z):
+    return 1.0/(1.0+np.exp(-z))
+\end{minted}
+oraz jej pochodną
+\begin{minted}{python}
+    def sigmoid_prime(z):
+        """Derivative of the sigmoid function."""
+        return sigmoid(z)*(1-sigmoid(z))
+\end{minted}
+Sieć zacznijmy od konstruktora:
+\begin{minted}{python}
+import numpy as np
+
+class Network(object):
+  def __init__(self, sizes):
+    self.num_layers = len(sizes)
+    self.sizes = sizes
+    self.biases = [np.random.randn(y, 1) for y in sizes[1:]]
+    self.weights = [np.random.randn(y, x) for x, y in zip(sizes[:-1], sizes[1:])]
+\end{minted}
+więc np. $w=$ \mintinline{python}{net.weights[1]} oznacza wagi pomiędzy drugą i trzecią warstwą.
+We wzorach będziemy oznaczać to jako $w_{jk}$, co oznacza wagę dla połączenia między $k$-tym neuronem w trzeciej warstwie a $j$-tym neuronem w drugiej warstwie.
+Dzięki takiemu oznaczeniu możemy napisać:
+\begin{eqnarray} 
+  a' = \sigma(w a + b),
+\end{eqnarray}
+gdzie $a$ to wektor aktywacji drugiej warstwy, a $a'$ to wektor aktywacji dla trzeciej warstwy.
+
+a następnie zdefiniujmy kolejną metodę:
+\begin{minted}{python}
+    def feedforward(self, a):
+	    for b, w in zip(self.biases, self.weights):
+	        a = sigmoid(np.dot(w, a)+b)
+	    return a
+\end{minted}
+Następnie czas na stochastyczny gradient.
+\begin{minted}{python}
+    def SGD(self, training_data, epochs, mini_batch_size, eta,
+            test_data=None):
+        if test_data: n_test = len(test_data)
+        n = len(training_data)
+        for j in xrange(epochs):
+            random.shuffle(training_data)
+            mini_batches = [
+                training_data[k:k+mini_batch_size]
+                for k in xrange(0, n, mini_batch_size)]
+            for mini_batch in mini_batches:
+                self.update_mini_batch(mini_batch, eta)
+            if test_data:
+                print "Epoch {0}: {1} / {2}".format(
+                    j, self.evaluate(test_data), n_test)
+            else:
+                print "Epoch {0} complete".format(j)
+\end{minted}
+Pod zmienną \mintinline{python}{training_data} kryje się lista krotek postaci $(x, y)$, co reprezentuje odpowiednio cyfry do rozpoznania wraz z ich odpowiednimi oznaczeniami.
+Zmienna \mintinline{python}{test_data} pozwala na ewaluację sieci po każdej epoce.
+W każdej epoce kod partycjonuje dane wejściowe na minipróbki, a każda z nich będzie pojedynczym krokiem dla SGD przetworzonym przez poniższy kod:
+\begin{minted}{python}
+    def update_mini_batch(self, mini_batch, eta):
+        nabla_b = [np.zeros(b.shape) for b in self.biases]
+        nabla_w = [np.zeros(w.shape) for w in self.weights]
+        for x, y in mini_batch:
+            delta_nabla_b, delta_nabla_w = self.backprop(x, y)
+            nabla_b = [nb+dnb for nb, dnb in zip(nabla_b, delta_nabla_b)]
+            nabla_w = [nw+dnw for nw, dnw in zip(nabla_w, delta_nabla_w)]
+        self.weights = [w-(eta/len(mini_batch))*nw 
+                        for w, nw in zip(self.weights, nabla_w)]
+        self.biases = [b-(eta/len(mini_batch))*nb 
+                       for b, nb in zip(self.biases, nabla_b)]
+\end{minted}
+Teraz czas na mechanizm propagacji wstecznej:
+\begin{minted}{python}
+    def backprop(self, x, y):
+        nabla_b = [np.zeros(b.shape) for b in self.biases]
+        nabla_w = [np.zeros(w.shape) for w in self.weights]
+        # feedforward
+        activation = x
+        activations = [x] # list to store all the activations, layer by layer
+        zs = [] # list to store all the z vectors, layer by layer
+        for b, w in zip(self.biases, self.weights):
+            z = np.dot(w, activation)+b
+            zs.append(z)
+            activation = sigmoid(z)
+            activations.append(activation)
+        delta = self.cost_derivative(activations[-1], y) * \
+            sigmoid_prime(zs[-1])
+        nabla_b[-1] = delta
+        nabla_w[-1] = np.dot(delta, activations[-2].transpose())
+        for l in xrange(2, self.num_layers):
+            z = zs[-l]
+            sp = sigmoid_prime(z)
+            delta = np.dot(self.weights[-l+1].transpose(), delta) * sp
+            nabla_b[-l] = delta
+            nabla_w[-l] = np.dot(delta, activations[-l-1].transpose())
+        return (nabla_b, nabla_w)
+\end{minted}
+W tej metodzie ewaluujemy sieć:
+\begin{minted}{python}
+    def evaluate(self, test_data):
+        test_results = [(np.argmax(self.feedforward(x)), y)
+                        for (x, y) in test_data]
+        return sum(int(x == y) for (x, y) in test_results)
+\end{minted}
+A ta zwraca $\partial C_x / \partial$
+\begin{minted}{python}
+    def cost_derivative(self, output_activations, y):
+        return (output_activations-y)
 \end{minted}
 
+
+Mamy już wszystko gotowe. 
+Trening rozpoczynamy przez wywołanie następującej metody:
+\begin{minted}{python}
+net = Network([784, 30, 10])
+net.SGD(training_data, 30, 10, 3.0, test_data=test_data)	
+\end{minted}
+Tutaj sieć uczy się za wolno...
+\begin{minted}{python}
+net = Network([784, 30, 10])
+net.SGD(training_data, 30, 10, 0.001, test_data=test_data)	
+\end{minted}
+...a tutaj $\eta$ jest za duża i niejako omijamy minimum lokalne:
+\begin{minted}{python}
+net = Network([784, 30, 10])
+net.SGD(training_data, 30, 10, 100.0, test_data=test_data)	
+\end{minted}
 
 \end{document}
