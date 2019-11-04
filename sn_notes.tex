@@ -47,7 +47,7 @@ W dużej części bazuje on na: M. Nielsen, \emph{Neural Networks and Deep Learn
 \section{Wprowadzenie do sieci neuronowych}
 \subsection{Wielowarstwowy perceptron}
 
-Perceptron, trzy binarne wagi $x_1, x_2, x_3$, binarne wyjście.
+Zdefiniujmy \textbf{perceptron}, który dla trzech binarnych wagi $x_1, x_2, x_3$, gdzie każda z nich to 0 lub 1, zwraca binarne wyjście (czyli również 0 lub 1).
 \begin{figure}[htpb]
 	\centering
 	\includegraphics[width=.3\linewidth]{figures/tikz0}
@@ -98,19 +98,52 @@ Próg (threshold) zastąpimy przez $b$ (ang. \emph{bias}), co fachowo nazywamy p
 \end{eqnarray}
 
 
+
 \subsection{Funkcja sigmoidalana}
+
+W ogólności chcielibyśmy, żeby mała zmiana wag odpowiadała małej zmianie na wyjściu sieci.
+W naszym przypadku mała zmiana potrafi jednak wszystko obrócić do góry nogami, tj. zamienić 0 na wyjściu w 1.
+Modyfikacja wag jest więc problemem -- możemy sobie z nim poradzić wprowadzając nowy rodzaj neuronu, \textbf{funkcję sigmoidalną}.
+\begin{figure}[htpb]
+	\centering
+	\includegraphics[width=.5\linewidth]{figures/tikz8}
+	\caption{Prosta sieć. Źródło: Nielsen (2015)}
+\end{figure}
+Podobnie jak w perceptronie, taka funkcja ma ileś wejść -- tym razem jednak nie będą one w przedziale $[0, 1]$ (zamiast tylko 0 i 1) -- na przykład 0,638.
+Zostawiamy również wagi oraz obciążenie.
+Wyjście, podobnie jak wejście, znajduje się w zbiorze $[0, 1]$.
+Określamy je jako $\sigma(w \cdot x+b)$, gdzie $\sigma$ definiujemy następująco:
 \begin{eqnarray} 
   \sigma(z) \equiv \frac{1}{1+e^{-z}}.
 \end{eqnarray}
-
+Podstawiając dosłownie:
 \begin{eqnarray} 
-  \frac{1}{1+\exp(-\sum_j w_j x_j-b)}.
+  \frac{1}{1+e^{\left(-\sum_j w_j x_j-b\right)}}.
 \end{eqnarray}
+Zauważmy, że jeżeli $z\equiv w \cdot x + b$ jest pewną dużą liczbą, to $e^{-z} \approx 0$ i tym samym $\sigma(z) \approx 1$.
+Jeżeli natomiast $z$ jest \emph{bardzo} ujemną wartością, to $e^{-z} \rightarrow \infty$, dzięki czemu $\sigma(z) \approx 0$ -- patrz rys. \ref{fig:sigmoid} oraz \ref{fig:step}.
+\begin{figure}[htpb]
+	\centering
+	\includegraphics[width=.4\linewidth]{figures/sigmoid}
+	\caption{Sigmoidalna funkcja aktywacji. Źródło: Nielsen (2015)}
+	\label{fig:sigmoid}
+\end{figure}
+\begin{figure}[htpb]
+	\centering
+	\includegraphics[width=.4\linewidth]{figures/step}
+	\caption{Skokowa funkcja aktywacji. Źródło: Nielsen (2015)}
+	\label{fig:step}
+\end{figure}
 
+Zastępując skokową funkcję przez funkcję sigmoidalną, uzyskujemy pewną matematyczną właśność.
+Sigmoida jest funkcją gładką, tj. jest ona różniczkowalna nieskończenie wiele razy na swoim przedziale.
+Gładkość implikuje też inne właściwości -- małe zmiany $\Delta w_j$ oraz $\Delta b$ powinny skutkować niewielką zmianą na wyjściu, co można aproksymować w następujący sposób:
 \begin{eqnarray} 
   \Delta \mbox{output} \approx \sum_j \frac{\partial \, \mbox{output}}{\partial w_j}
   \Delta w_j + \frac{\partial \, \mbox{output}}{\partial b} \Delta b,
 \end{eqnarray}
+
+W ogólności funkcję $f$ postaci $f(w \cdot x + b)$ będziemy nazywać \textbf{funkcją aktywacji}.
 
 \subsection{Funkcja kosztu oraz gradient}
 
