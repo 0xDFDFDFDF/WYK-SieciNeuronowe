@@ -144,6 +144,42 @@ Gładkość implikuje też inne właściwości -- małe zmiany $\Delta w_j$ oraz
 \end{eqnarray}
 
 W ogólności funkcję $f$ postaci $f(w \cdot x + b)$ będziemy nazywać \textbf{funkcją aktywacji}.
+Sieci wykorzystujące sigmoidalną funkcję aktywacji nazywane są czasami \textbf{wielowarstwowymi perceptronami} (ang. \emph{MLP}).
+
+
+
+\subsection{Architektura sieci neuronowej}
+Sieć neuronowa składa się, w ogólności, z trzech rodzajów warstw: \textbf{wejściowej}, \textbf{ukrytych}, oraz \textbf{wyjściowej}.
+\begin{figure}[htpb]
+	\centering
+	\includegraphics[width=.5\linewidth]{figures/tikz11}
+	\caption{Architektura sieci. Źródło: Nielsen (2015)}
+\end{figure}
+Załóżmy, że chcemy klasyfikować obrazy przedstawiające cyfry zapisane odręcznie o rozmiarze $28 \times 28$ pikseli w skali szarości.
+Ponieważ do reprezentacji każdego z nich z łącznie 764 pikseli w skali szarości potrzebujemy tylko jednej liczby (oznaczającej intensywność czerni), będziemy potrzebowali tylu neuronów na wejściu.
+Zabawa zaczyna się przy dobieraniu liczby warstw ukrytych, a także ilości neuronów w każdej z nich.
+W problemie klasyfikacji możemy dobrać liczbę neuronów na wyjściu tak, żeby reprezentowała liczbę klas -- ponieważ jest 10 cyfr, tylko neuronów będzie miała nasza sieć w warstwie wyjściowej.
+
+\begin{figure}[htpb]
+	\centering
+	\includegraphics[width=.5\linewidth]{figures/digits}
+	\caption{Cyfry zapisane odręcznie. Źródło: MNIST, Nielsen (2015)}
+\end{figure}
+\begin{figure}[htpb]
+	\centering
+	\includegraphics[width=.5\linewidth]{figures/digits_separate}
+	\caption{Cyfry zapisane odręcznie po segmentacji. Źródło: MNIST, Nielsen (2015)}
+\end{figure}
+\begin{figure}[htpb]
+	\centering
+	\includegraphics[width=.1\linewidth]{figures/mnist_first_digit}
+	\caption{Pierwsza cyfra. Źródło: MNIST, Nielsen (2015)}
+\end{figure}
+\begin{figure}[!htpb]
+	\centering
+	\includegraphics[width=.5\linewidth]{figures/tikz12}
+	\caption{Architektura sieci. Źródło: Nielsen (2015)}
+\end{figure}
 
 \subsection{Funkcja kosztu oraz gradient}
 
