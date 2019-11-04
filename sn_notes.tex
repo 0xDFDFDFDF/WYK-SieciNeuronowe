@@ -395,9 +395,75 @@ Mamy:
 \end{eqnarray}
 Jeżeli znamy błąd w kolejnej warstwie ($\delta^(l+1)$), to możemy obliczyć $\delta^l$ -- niejako propagując błąd wstecz (od końca).
 
+\subsubsection{Tempo zmian kosztu wobec obciążenia w sieci}
+Mamy:
+\begin{eqnarray}  \frac{\partial C}{\partial b^l_j} = \delta^l_j,
+\end{eqnarray}
+co można zapisać jako
+\begin{eqnarray}
+  \frac{\partial C}{\partial b} = \delta,
+\end{eqnarray}
+
+\subsubsection{Tempo zmian kosztu wobec wag w sieci}
+Mamy:
+\begin{eqnarray}
+  \frac{\partial C}{\partial w^l_{jk}} = a^{l-1}_k \delta^l_j.
+\end{eqnarray}
+Równoważnie:
+\begin{eqnarray}  \frac{\partial
+    C}{\partial w} = a_{\rm in} \delta_{\rm out},
+\end{eqnarray}
 
 
+\subsection{Algorytm propagacji wstecznej}
 
+\begin{algorithm}
+    \caption{Algorytm propagacji wstecznej}
+    \label{alg:backprop}
+    \begin{algorithmic}[1] % The number tells where the line numbering should start
+        \Function{Backpropagation}{$x$}
+            \State $a^1 \gets x$ \Comment{wejście jest \emph{wyjściem} pierwszej warstwy}
+            	\For{$l \gets {2, 3, \dots, L}$}
+            		\State $z^{l} \gets w^l a^{l-1}+b^l$
+            		\State $a^{l} \gets \sigma(z^{l})$
+            	\EndFor
+            	\State $\delta^{L} \gets \nabla_a C \odot \sigma'(z^L)$
+            	\For{$l \gets {L-1, L-2, \dots, 2}$}
+            		\State $\delta^{l} \gets ((w^{l+1})^T \delta^{l+1}) \odot \sigma'(z^{l})$         
+            	\EndFor
+            	\State $\frac{\partial C}{\partial w^l_{jk}} \gets a^{l-1}_k \delta^l_j$
+            	\State $\frac{\partial C}{\partial b^l_j} \gets \delta^l_j$
+        \EndFunction
+    \end{algorithmic}
+\end{algorithm}
+
+
+\begin{algorithm}
+    \caption{Algorytm propagacji wstecznej + SGD + minibatch}
+    \label{alg:backprop_sgf}
+    \begin{algorithmic}[1] % The number tells where the line numbering should start
+        \Function{SGD-Backpropagation}{$x$}
+        		\For{$x$ in $X_m$}
+	            \State $a^1 \gets x$ \Comment{wejście jest \emph{wyjściem} pierwszej warstwy}
+	            	\For{$l \gets {2, 3, \dots, L}$}
+	            		\State $z^{l} \gets w^l a^{l-1}+b^l$
+	            		\State $a^{l} \gets \sigma(z^{l})$
+	            	\EndFor
+	            	\State $\delta^{L} \gets \nabla_a C \odot \sigma'(z^L)$
+	            	\For{$l \gets {L-1, L-2, \dots, 2}$}
+	            		\State $\delta^{l} \gets ((w^{l+1})^T \delta^{l+1}) \odot \sigma'(z^{l})$         
+	            	\EndFor
+	            	\State $\frac{\partial C}{\partial w^l_{jk}} \gets a^{l-1}_k \delta^l_j$
+	            	\State $\frac{\partial C}{\partial b^l_j} \gets \delta^l_j$
+	         \EndFor
+	         \For{$l \gets {L, L-2, \dots, 2}$}
+	         	\State $w^l \gets w^l-\frac{\eta}{m} \sum_x \delta^{x,l} (a^{x,l-1})^T$
+	         	\State $b^l \gets b^l-\frac{\eta}{m}
+  \sum_x \delta^{x,l}$
+	         \EndFor
+        \EndFunction
+    \end{algorithmic}
+\end{algorithm}
 
 \subsection{Implementacja prostej sieci neuronowej w NumPy}
 Wejdź na tą\footnote{\url{https://colab.research.google.com/drive/1sVY_zZscj5Xa9XWRrQxf5bBqiv4C4Bwu}} stronę. 
