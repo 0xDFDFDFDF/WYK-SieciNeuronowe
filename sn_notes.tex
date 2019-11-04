@@ -292,6 +292,43 @@ Wstawiając do reguły uczenia naszej sieci neuronowej mamy finalnie:
 gdzie sumy po $X_j$ odnoszą się do aktualnej minipróbki.
 Kiedy przeiterujemy po wszystkich dostępnych porcjach danych, to powiemy, że skończyliśmy \textbf{epokę} (ang. \emph{epoch}) treningu.
 
+
+
+\subsection{Zapis macierzowy}
+Niech $w_{jk}^{l}$ oznacza wagę dla połączenia z $k$-tego neuronu w $(l-1)$-tej warstwie do $j$-tego neuronu w $l$-tej warstwie.
+\begin{figure}[!htpb]
+	\centering
+	\includegraphics[width=.7\linewidth]{figures/tikz16}
+	\caption{Oznaczenia wag. Źródło: Nielsen (2015)}
+\end{figure}
+Podobnie postąpi z obciążeniami $b_j^l$ i aktywacjami $a_j^l$.
+\begin{figure}[!htpb]
+	\centering
+	\includegraphics[width=.3\linewidth]{figures/tikz17}
+	\caption{Oznaczenia obciążeń i aktywacji. Źródło: Nielsen (2015)}
+\end{figure}
+Z tą notacją nasza funkcja aktywacji prezentuje się następująco:
+\begin{eqnarray} 
+  a^{l}_j = \sigma\left( \sum_k w^{l}_{jk} a^{l-1}_k + b^l_j \right),
+\end{eqnarray}
+gdzie suma jest po $k$ neuronach w $(l-1)$-tej warstwie.
+Ponieważ zapis jest dość skomplikowany, to warto skorzystać z formy zwektoryzowanej, tj. zapisać macierz $w^l$ dla każdej warstwy, gdzie każda wpis $w^{l}_{jk}$ to wagi dla $l$-tej warstwy $j$-tej kolumnie i $k$-tym wierszu.
+Analogicznie postąpimy z $b_j^l$ i aktywacjami $a_j^l$ -- zdefiniujmy dla nich wektory $b^l$ i $a^l$.
+Finalnie pokażmy jeszcze mechanizm wektoryzacji funkcji:
+\begin{eqnarray}
+  f\left(\left[ \begin{array}{c} 2 \\ 3 \end{array} \right] \right)
+  = \left[ \begin{array}{c} f(2) \\ f(3) \end{array} \right]
+  = \left[ \begin{array}{c} 4 \\ 9 \end{array} \right],
+\end{eqnarray}
+dzięki czemu możemy zapisać całe równanie w zgrabnej formie:
+\begin{eqnarray} 
+  a^{l} = \sigma(w^l a^{l-1}+b^l).
+\end{eqnarray}
+W ogólności będziemy najpierw liczyć $z^l \equiv w^l a^{l-1}+b^l$, które oznacza ważone wejście do warstwy $l$. Oczywiście $a^l =
+\sigma(z^l)$.
+
+
+
 \subsection{Implementacja prostej sieci neuronowej w NumPy}
 Wejdź na tą\footnote{\url{https://colab.research.google.com/drive/1sVY_zZscj5Xa9XWRrQxf5bBqiv4C4Bwu}} stronę. 
 Jest tu zalążek kodu służący do pobierania danych MNIST -- jest tam 60 tys. przykładów.
