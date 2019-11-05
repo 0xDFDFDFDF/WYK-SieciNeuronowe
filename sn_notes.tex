@@ -145,7 +145,7 @@ Gładkość implikuje też inne właściwości -- małe zmiany $\Delta w_j$ oraz
 
 W ogólności funkcję $f$ postaci $f(w \cdot x + b)$ będziemy nazywać \textbf{funkcją aktywacji}.
 Sieci wykorzystujące sigmoidalną funkcję aktywacji nazywane są czasami \textbf{wielowarstwowymi perceptronami} (ang. \emph{MLP}).
-
+Funkcja sigmoidalna ma też bardzo ładną pochodną: $\sigma'(z) = \sigma(z)(1-\sigma(z))$.
 
 
 \subsection{Architektura sieci neuronowej}
@@ -618,24 +618,76 @@ net.SGD(training_data, 30, 10, 100.0, test_data=test_data)
 
 \section{Usprawnienia procesu uczenia się sieci}
 
-\subsection{Entropia krzyżowa}
+\subsection{Powolne uczenie się}
 
+Rozpatrzmy pojedynczy neuron, którego zadaniem jest dla wejścia 1 zwracać 0.
+Załóżmy, że $\eta = 0.15$, $w=0.06$, $b=0.09$.
 \begin{figure}[!htpb]
 	\centering
 	\includegraphics[width=.5\linewidth]{figures/learn_mse_0609}
-	\caption{Proces uczenia się -- MSE. Źródło: Nielsen (2015)}
+	\caption{Proces uczenia się -- MSE, $\eta = 0.15$, $w=0.06$, $b=0.09$. Źródło: Nielsen (2015)}
 \end{figure}
+Dla $w=2$, $b=2$ proces uczenia przebiega znacznie wolniej.
 \begin{figure}[!htpb]
 	\centering
 	\includegraphics[width=.5\linewidth]{figures/learn_mse_2020}
-	\caption{Proces uczenia się -- MSE. Źródło: Nielsen (2015)}
+	\caption{Proces uczenia się -- MSE, $\eta = 0.15$, $w=2.00$, $b=2.00$. Źródło: Nielsen (2015)}
 \end{figure}
-
+Do źródła problemu dojdziemy analizując funkcję kosztu, tj.:
+\begin{eqnarray}
+  C = \frac{(y-a)^2}{2}
+\end{eqnarray}
+Pamiętając, że $a = \sigma(z)$ oraz $z = wx +b$ i podstawiając $x=1$ oraz $y=0$ obliczmy pochodne
+\begin{eqnarray} 
+  \frac{\partial C}{\partial w} & = & (a-y)\sigma'(z) x = a \sigma'(z) \\
+  \frac{\partial C}{\partial b} & = & (a-y)\sigma'(z) = a \sigma'(z),
+\end{eqnarray}
+Zmiana kosztu będzie mała, gdy mała jest $\sigma'(z)$ -- a tak jest blisko 0 i 1.
 \begin{figure}[!htpb]
 	\centering
 	\includegraphics[width=.5\linewidth]{figures/sigmoid2}
 	\caption{Sigmoida. Źródło: Nielsen (2015)}
 \end{figure}
+
+
+
+\subsection{Entropia krzyżowa}
+
+\begin{figure}[!htpb]
+	\centering
+	\includegraphics[width=.3\linewidth]{figures/tikz29}
+	\caption{Neuron. Źródło: Nielsen (2015)}
+\end{figure}
+
+\begin{eqnarray} 
+  C = -\frac{1}{n} \sum_x \left[y \ln a + (1-y ) \ln (1-a) \right],
+\end{eqnarray}
+
+\begin{eqnarray}
+  \frac{\partial C}{\partial w_j} & = & -\frac{1}{n} \sum_x \left(
+    \frac{y }{\sigma(z)} -\frac{(1-y)}{1-\sigma(z)} \right)
+  \frac{\partial \sigma}{\partial w_j} \\
+ & = & -\frac{1}{n} \sum_x \left( 
+    \frac{y}{\sigma(z)} 
+    -\frac{(1-y)}{1-\sigma(z)} \right)\sigma'(z) x_j.
+\end{eqnarray}
+
+\begin{eqnarray}
+  \frac{\partial C}{\partial w_j} & = & \frac{1}{n}
+  \sum_x \frac{\sigma'(z) x_j}{\sigma(z) (1-\sigma(z))}
+  (\sigma(z)-y).
+\end{eqnarray}
+
+\begin{eqnarray} 
+  \frac{\partial C}{\partial w_j} =  \frac{1}{n} \sum_x x_j(\sigma(z)-y).
+\end{eqnarray}
+
+\begin{eqnarray} 
+  \frac{\partial C}{\partial b} = \frac{1}{n} \sum_x (\sigma(z)-y).
+\end{eqnarray}
+
+
+
 
 \begin{figure}[!htpb]
 	\centering
@@ -648,14 +700,80 @@ net.SGD(training_data, 30, 10, 100.0, test_data=test_data)
 	\caption{Proces uczenia się -- entropia krzyżowa. Źródło: Nielsen (2015)}
 \end{figure}
 
+\begin{eqnarray}  C = -\frac{1}{n} \sum_x
+  \sum_j \left[y_j \ln a^L_j + (1-y_j) \ln (1-a^L_j) \right].
+\end{eqnarray}
+
+Skąd wzięła się entropia krzyżowa?
+\begin{eqnarray} 
+  \frac{\partial C}{\partial w_j} & = & x_j(a-y) \\
+  \frac{\partial C}{\partial b } & = & (a-y).
+\end{eqnarray}
+\begin{eqnarray}
+  \frac{\partial C}{\partial b} = \frac{\partial C}{\partial a} 
+  \sigma'(z).
+\end{eqnarray}
+\begin{eqnarray}
+  \frac{\partial C}{\partial b} = \frac{\partial C}{\partial a} 
+  a(1-a).
+\end{eqnarray}
+\begin{eqnarray}
+  \frac{\partial C}{\partial a} = \frac{a-y}{a(1-a)}.
+\end{eqnarray}
+
+\begin{eqnarray}
+  C = -[y \ln a + (1-y) \ln (1-a)]+ {\rm constant},
+\end{eqnarray}
+
+\begin{eqnarray}
+  C = -\frac{1}{n} \sum_x [y \ln a +(1-y) \ln(1-a)] + {\rm constant},
+\end{eqnarray}
+
+
 \subsection{Softmax}
 
+
+\begin{eqnarray} 
+  a^L_j = \frac{e^{z^L_j}}{\sum_k e^{z^L_k}},
+\end{eqnarray}
+\begin{eqnarray}
+  \sum_j a^L_j & = & \frac{\sum_j e^{z^L_j}}{\sum_k e^{z^L_k}} = 1.
+\end{eqnarray}
+
 \subsection{Regularyzacja}
+\begin{eqnarray} C = -\frac{1}{n} \sum_{xj} \left[ y_j \ln a^L_j+(1-y_j) \ln
+(1-a^L_j)\right] + \frac{\lambda}{2n} \sum_w w^2.
+\end{eqnarray}
+
+\begin{eqnarray} C = \frac{1}{2n} \sum_x \|y-a^L\|^2 +
+  \frac{\lambda}{2n} \sum_w w^2.
+\end{eqnarray}
+
+\begin{eqnarray}  C = C_0 + \frac{\lambda}{2n}
+\sum_w w^2,
+\end{eqnarray}
+
+\begin{eqnarray}  C = C_0 + \frac{\lambda}{n} \sum_w |w|.
+\end{eqnarray}
 
 \subsection{Inicjalizacja wag}
 
 \subsection{Optymalizacja hiperparametrów}
 
+Tangens hiperboliczny
+
 \subsection{Inne funkcje aktywacji}
+\begin{eqnarray}
+  \tanh(z) \equiv \frac{e^z-e^{-z}}{e^z+e^{-z}}.
+\end{eqnarray}
+
+\begin{eqnarray} 
+  \sigma(z) = \frac{1+\tanh(z/2)}{2},
+\end{eqnarray}
+
+ReLU
+\begin{eqnarray}
+  \max(0, w \cdot x+b).
+\end{eqnarray}
 
 \end{document}
