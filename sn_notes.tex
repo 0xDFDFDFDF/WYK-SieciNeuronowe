@@ -388,7 +388,7 @@ Innymi słowy:
 \begin{eqnarray} 
   \delta^L = (a^L-y) \odot \sigma'(z^L).
 \end{eqnarray}
-\subsubsection{Błąd $\delta^l$ w stosunku do błędu $\delta^(l+1)$}
+\subsubsection{Błąd $\delta^l$ w stosunku do błędu $\delta^{l+1}$}
 Mamy:
 \begin{eqnarray} 
   \delta^l = ((w^{l+1})^T \delta^{l+1}) \odot \sigma'(z^l),
@@ -477,8 +477,6 @@ Algorytm ten jest często łączony z innymi, np. SGD.
         \EndFunction
     \end{algorithmic}
 \end{algorithm}
-
-
 
 
 \section{Implementacja prostej sieci neuronowej w NumPy}
@@ -617,5 +615,47 @@ net.SGD(training_data, 30, 10, 0.001, test_data=test_data)
 net = Network([784, 30, 10])
 net.SGD(training_data, 30, 10, 100.0, test_data=test_data)	
 \end{minted}
+
+\section{Usprawnienia procesu uczenia się sieci}
+
+\subsection{Entropia krzyżowa}
+
+\begin{figure}[!htpb]
+	\centering
+	\includegraphics[width=.5\linewidth]{figures/learn_mse_0609}
+	\caption{Proces uczenia się -- MSE. Źródło: Nielsen (2015)}
+\end{figure}
+\begin{figure}[!htpb]
+	\centering
+	\includegraphics[width=.5\linewidth]{figures/learn_mse_2020}
+	\caption{Proces uczenia się -- MSE. Źródło: Nielsen (2015)}
+\end{figure}
+
+\begin{figure}[!htpb]
+	\centering
+	\includegraphics[width=.5\linewidth]{figures/sigmoid2}
+	\caption{Sigmoida. Źródło: Nielsen (2015)}
+\end{figure}
+
+\begin{figure}[!htpb]
+	\centering
+	\includegraphics[width=.5\linewidth]{figures/learn_ce_0609}
+	\caption{Proces uczenia się -- entropia krzyżowa. Źródło: Nielsen (2015)}
+\end{figure}
+\begin{figure}[!htpb]
+	\centering
+	\includegraphics[width=.5\linewidth]{figures/learn_ce_2020}
+	\caption{Proces uczenia się -- entropia krzyżowa. Źródło: Nielsen (2015)}
+\end{figure}
+
+\subsection{Softmax}
+
+\subsection{Regularyzacja}
+
+\subsection{Inicjalizacja wag}
+
+\subsection{Optymalizacja hiperparametrów}
+
+\subsection{Inne funkcje aktywacji}
 
 \end{document}
