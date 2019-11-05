@@ -456,18 +456,18 @@ Algorytm ten jest często łączony z innymi, np. SGD.
     \label{alg:backprop_sgf}
     \begin{algorithmic}[1] % The number tells where the line numbering should start
         \Function{SGD-Backpropagation}{$x$}
-        		\For{$x$ in $X_m$}
-	            \State $a^1 \gets x$ \Comment{wejście jest \emph{wyjściem} pierwszej warstwy}
+        		\For{$x$ in $X_m$} \Comment{minibatch $m$}
+	            \State $a^{x,1} \gets x$ \Comment{wejście jest \emph{wyjściem} pierwszej warstwy}
 	            	\For{$l \gets {2, 3, \dots, L}$}
-	            		\State $z^{l} \gets w^l a^{l-1}+b^l$
-	            		\State $a^{l} \gets \sigma(z^{l})$
+	            		\State $z^{x,l} \gets w^l a^{x,l-1}+b^l$
+	            		\State $a^{x,l} \gets \sigma(z^{x,l})$
 	            	\EndFor
-	            	\State $\delta^{L} \gets \nabla_a C \odot \sigma'(z^L)$
+	            	\State $\delta^{x,L} \gets \nabla_a C \odot \sigma'(z^{x,L})$
 	            	\For{$l \gets {L-1, L-2, \dots, 2}$}
-	            		\State $\delta^{l} \gets ((w^{l+1})^T \delta^{l+1}) \odot \sigma'(z^{l})$         
+	            		\State $\delta^{x,l} \gets ((w^{x,l+1})^T \delta^{x,l+1}) \odot \sigma'(z^{x,l})$         
 	            	\EndFor
-	            	\State $\frac{\partial C}{\partial w^l_{jk}} \gets a^{l-1}_k \delta^l_j$
-	            	\State $\frac{\partial C}{\partial b^l_j} \gets \delta^l_j$
+	            	\State $\frac{\partial C}{\partial w^l_{jk}} \gets a^{x,l-1}_k \delta^{x,l_j}$
+	            	\State $\frac{\partial C}{\partial b^l_j} \gets \delta^{x,l_j}$
 	         \EndFor
 	         \For{$l \gets {L, L-2, \dots, 2}$}
 	         	\State $w^l \gets w^l-\frac{\eta}{m} \sum_x \delta^{x,l} (a^{x,l-1})^T$
