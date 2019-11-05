@@ -397,11 +397,12 @@ Jeżeli znamy błąd w kolejnej warstwie ($\delta^(l+1)$), to możemy obliczyć 
 
 \subsubsection{Tempo zmian kosztu wobec obciążenia w sieci}
 Mamy:
-\begin{eqnarray}  \frac{\partial C}{\partial b^l_j} = \delta^l_j,
+\begin{eqnarray}  
+	\frac{\partial C}{\partial b^l_j} = \delta^l_j,
 \end{eqnarray}
 co można zapisać jako
 \begin{eqnarray}
-  \frac{\partial C}{\partial b} = \delta,
+  \frac{\partial C}{\partial b} = \delta.
 \end{eqnarray}
 
 \subsubsection{Tempo zmian kosztu wobec wag w sieci}
@@ -410,12 +411,23 @@ Mamy:
   \frac{\partial C}{\partial w^l_{jk}} = a^{l-1}_k \delta^l_j.
 \end{eqnarray}
 Równoważnie:
-\begin{eqnarray}  \frac{\partial
-    C}{\partial w} = a_{\rm in} \delta_{\rm out},
+\begin{eqnarray}  
+  \frac{\partial C}{\partial w} = a_{\rm in} \delta_{\rm out}.
 \end{eqnarray}
-
+\begin{figure}[!htpb]
+	\centering
+	\includegraphics[width=.2\linewidth]{figures/tikz20}
+	\caption{Tempo zmian kosztu wobec wag w sieci. Źródło: Nielsen (2015)}
+\end{figure}
 
 \subsection{Algorytm propagacji wstecznej}
+Algorytm propagacji wstecznej działa na podstawie poniższych czterech równań:
+\begin{align}
+	\delta^L &= \nabla_a C \odot \sigma'(z^L)\\
+	\delta^l &= ((w^{l+1})^T \delta^{l+1}) \odot \sigma'(z^l)\\
+	\frac{\partial C}{\partial b^l_j} &= \delta^l_j \\
+	\frac{\partial C}{\partial w^l_{jk}} &= a^{l-1}_k \delta^l_j
+\end{align}
 
 \begin{algorithm}
     \caption{Algorytm propagacji wstecznej}
@@ -437,6 +449,7 @@ Równoważnie:
     \end{algorithmic}
 \end{algorithm}
 
+Algorytm ten jest często łączony z innymi, np. SGD.
 
 \begin{algorithm}
     \caption{Algorytm propagacji wstecznej + SGD + minibatch}
