@@ -652,17 +652,19 @@ Zmiana kosztu będzie mała, gdy mała jest $\sigma'(z)$ -- a tak jest blisko 0 
 
 
 \subsection{Entropia krzyżowa}
-
-\begin{figure}[!htpb]
-	\centering
-	\includegraphics[width=.3\linewidth]{figures/tikz29}
-	\caption{Neuron. Źródło: Nielsen (2015)}
-\end{figure}
-
+Entropia krzyżowa (ang. \emph{cross-entropy}) to inna (zazwyczaj lepsza od MSE) funkcja kosztu.
+Definiujemy ją następująco:
+%\begin{figure}[!htpb]
+%	\centering
+%	\includegraphics[width=.3\linewidth]{figures/tikz29}
+%	\caption{Neuron. Źródło: Nielsen (2015)}
+%\end{figure}
 \begin{eqnarray} 
   C = -\frac{1}{n} \sum_x \left[y \ln a + (1-y ) \ln (1-a) \right],
 \end{eqnarray}
-
+Widać, że $C > 0$ -- oba logarytmy są między 0 a 1 -- oraz że wynik zmierza do 0, gdy estymacja jest bliska oryginałowi.
+Ogromną zaletą tej funkcji jest uniknięcie problemu spowolnionego uczenia.
+Podstawiając $a = \sigma(z)$ i różniczkując po $w$ dostaniemy:
 \begin{eqnarray}
   \frac{\partial C}{\partial w_j} & = & -\frac{1}{n} \sum_x \left(
     \frac{y }{\sigma(z)} -\frac{(1-y)}{1-\sigma(z)} \right)
@@ -671,23 +673,21 @@ Zmiana kosztu będzie mała, gdy mała jest $\sigma'(z)$ -- a tak jest blisko 0 
     \frac{y}{\sigma(z)} 
     -\frac{(1-y)}{1-\sigma(z)} \right)\sigma'(z) x_j.
 \end{eqnarray}
-
+Po uproszczeniu:
 \begin{eqnarray}
   \frac{\partial C}{\partial w_j} & = & \frac{1}{n}
   \sum_x \frac{\sigma'(z) x_j}{\sigma(z) (1-\sigma(z))}
   (\sigma(z)-y).
 \end{eqnarray}
-
+Wiedząc, że $\sigma'(z) = \sigma(z)(1-\sigma(z))$
 \begin{eqnarray} 
   \frac{\partial C}{\partial w_j} =  \frac{1}{n} \sum_x x_j(\sigma(z)-y).
 \end{eqnarray}
-
+To równanie mówi, że nauka będzie przebiegała proporcjonalnie do błędu, tj. im będzie większy, tym większa zmiana w sieci.
+Analogicznie postąpimy z obciążeniem:
 \begin{eqnarray} 
   \frac{\partial C}{\partial b} = \frac{1}{n} \sum_x (\sigma(z)-y).
 \end{eqnarray}
-
-
-
 
 \begin{figure}[!htpb]
 	\centering
@@ -699,37 +699,37 @@ Zmiana kosztu będzie mała, gdy mała jest $\sigma'(z)$ -- a tak jest blisko 0 
 	\includegraphics[width=.5\linewidth]{figures/learn_ce_2020}
 	\caption{Proces uczenia się -- entropia krzyżowa. Źródło: Nielsen (2015)}
 \end{figure}
-
+Generalizacja entropii krzyżowej na wiele neuronów wygląda następująco:
 \begin{eqnarray}  C = -\frac{1}{n} \sum_x
   \sum_j \left[y_j \ln a^L_j + (1-y_j) \ln (1-a^L_j) \right].
 \end{eqnarray}
 
-Skąd wzięła się entropia krzyżowa?
-\begin{eqnarray} 
-  \frac{\partial C}{\partial w_j} & = & x_j(a-y) \\
-  \frac{\partial C}{\partial b } & = & (a-y).
-\end{eqnarray}
-\begin{eqnarray}
-  \frac{\partial C}{\partial b} = \frac{\partial C}{\partial a} 
-  \sigma'(z).
-\end{eqnarray}
-\begin{eqnarray}
-  \frac{\partial C}{\partial b} = \frac{\partial C}{\partial a} 
-  a(1-a).
-\end{eqnarray}
-\begin{eqnarray}
-  \frac{\partial C}{\partial a} = \frac{a-y}{a(1-a)}.
-\end{eqnarray}
-
-\begin{eqnarray}
-  C = -[y \ln a + (1-y) \ln (1-a)]+ {\rm constant},
-\end{eqnarray}
-
-\begin{eqnarray}
-  C = -\frac{1}{n} \sum_x [y \ln a +(1-y) \ln(1-a)] + {\rm constant},
-\end{eqnarray}
-
-
+%Skąd wzięła się entropia krzyżowa?
+%\begin{eqnarray} 
+%  \frac{\partial C}{\partial w_j} & = & x_j(a-y) \\
+%  \frac{\partial C}{\partial b } & = & (a-y).
+%\end{eqnarray}
+%\begin{eqnarray}
+%  \frac{\partial C}{\partial b} = \frac{\partial C}{\partial a} 
+%  \sigma'(z).
+%\end{eqnarray}
+%\begin{eqnarray}
+%  \frac{\partial C}{\partial b} = \frac{\partial C}{\partial a} 
+%  a(1-a).
+%\end{eqnarray}
+%\begin{eqnarray}
+%  \frac{\partial C}{\partial a} = \frac{a-y}{a(1-a)}.
+%\end{eqnarray}
+%
+%\begin{eqnarray}
+%  C = -[y \ln a + (1-y) \ln (1-a)]+ {\rm constant},
+%\end{eqnarray}
+%
+%\begin{eqnarray}
+%  C = -\frac{1}{n} \sum_x [y \ln a +(1-y) \ln(1-a)] + {\rm constant},
+%\end{eqnarray}
+%
+%
 \subsection{Softmax}
 
 
