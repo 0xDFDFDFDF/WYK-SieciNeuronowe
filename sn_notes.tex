@@ -11,6 +11,9 @@
 \usepackage{pgfplots}
 \usepackage{booktabs}
 \usepackage{subcaption}
+\usepackage{amsthm}
+ 
+\renewcommand\qedsymbol{$\blacksquare$}
 
 \usetikzlibrary{matrix,arrows,automata}
 
@@ -147,6 +150,7 @@ Gładkość implikuje też inne właściwości -- małe zmiany $\Delta w_j$ oraz
 W ogólności funkcję $f$ postaci $f(w \cdot x + b)$ będziemy nazywać \textbf{funkcją aktywacji}.
 Sieci wykorzystujące sigmoidalną funkcję aktywacji nazywane są czasami \textbf{wielowarstwowymi perceptronami} (ang. \emph{MLP}).
 Funkcja sigmoidalna ma też bardzo ładną pochodną: $\sigma'(z) = \sigma(z)(1-\sigma(z))$.
+\begin{proof}
 \begin{align}
 \dfrac{d}{dz} \sigma(z) &= \dfrac{d}{dz} \left[ \dfrac{1}{1 + e^{-z}} \right] \\
 &= \dfrac{d}{dz} \left( 1 + \mathrm{e}^{-z} \right)^{-1} \\
@@ -158,6 +162,7 @@ Funkcja sigmoidalna ma też bardzo ładną pochodną: $\sigma'(z) = \sigma(z)(
 &= \dfrac{1}{1 + e^{-z}\ } \cdot \left( 1 - \dfrac{1}{1 + e^{-z}} \right) \\
 &= \sigma(z) \cdot (1 - \sigma(z))
 \end{align}
+\end{proof}
 
 \subsection{Architektura sieci neuronowej}
 Sieć neuronowa składa się, w ogólności, z trzech rodzajów warstw: \textbf{wejściowej}, \textbf{ukrytych}, oraz \textbf{wyjściowej}.
@@ -399,12 +404,55 @@ Innymi słowy:
 \begin{eqnarray} 
   \delta^L = (a^L-y) \odot \sigma'(z^L).
 \end{eqnarray}
+
+\begin{proof}
+Z definicji:
+\begin{eqnarray}
+  \delta^L_j = \frac{\partial C}{\partial z^L_j}.
+\end{eqnarray}
+Korzystając z definicji pochodnej funkcji złożonej możemy rozbić powyższe ze względu na wszystkie aktywacje w ostatniej warstwie:
+\begin{eqnarray}
+  \delta^L_j = \sum_k \frac{\partial C}{\partial a^L_k} \frac{\partial a^L_k}{\partial z^L_j},
+\end{eqnarray}
+co jest sumą po wszystkich $k$ neuronach w ostatniej warstwie.
+Ponieważ wyjście aktywacji $a^L_k$ $k$-tego neuronu zależy od ważonego wejścia $z^L_j$ dla $j$-tego neuronu wtedy i tylko wtedy, gdy $k=j$.
+Przez co możemy to uprościć:
+\begin{eqnarray}
+  \delta^L_j = \frac{\partial C}{\partial a^L_j} \frac{\partial a^L_j}{\partial z^L_j}.
+\end{eqnarray}
+Ponieważ $a^L_j = \sigma(z^L_j)$:
+\begin{eqnarray}
+  \delta^L_j = \frac{\partial C}{\partial a^L_j} \sigma'(z^L_j),
+\end{eqnarray}
+\end{proof}
+
 \subsubsection{Błąd $\delta^l$ w stosunku do błędu $\delta^{l+1}$}
 Mamy:
 \begin{eqnarray} 
   \delta^l = ((w^{l+1})^T \delta^{l+1}) \odot \sigma'(z^l),
 \end{eqnarray}
 Jeżeli znamy błąd w kolejnej warstwie ($\delta^(l+1)$), to możemy obliczyć $\delta^l$ -- niejako propagując błąd wstecz (od końca).
+
+\begin{proof}
+Zapiszmy $\delta^l_j = \partial C / \partial z^l_j$ tak, żeby odwołać się do $\delta^{l+1}_k = \partial C / \partial z^{l+1}_k$:
+\begin{eqnarray}
+  \delta^l_j & = & \frac{\partial C}{\partial z^l_j} \\
+  & = & \sum_k \frac{\partial C}{\partial z^{l+1}_k} \frac{\partial z^{l+1}_k}{\partial z^l_j} \\ 
+  & = & \sum_k \frac{\partial z^{l+1}_k}{\partial z^l_j} \delta^{l+1}_k.
+\end{eqnarray}
+Zauważmy, że:
+\begin{eqnarray}
+  z^{l+1}_k = \sum_j w^{l+1}_{kj} a^l_j +b^{l+1}_k = \sum_j w^{l+1}_{kj} \sigma(z^l_j) +b^{l+1}_k.
+\end{eqnarray}
+Różniczkując:
+\begin{eqnarray}
+  \frac{\partial z^{l+1}_k}{\partial z^l_j} = w^{l+1}_{kj} \sigma'(z^l_j).
+\end{eqnarray}
+Po podstawieniu:
+\begin{eqnarray}
+  \delta^l_j = \sum_k w^{l+1}_{kj}  \delta^{l+1}_k \sigma'(z^l_j).
+\end{eqnarray}
+\end{proof}
 
 \subsubsection{Tempo zmian kosztu wobec obciążenia w sieci}
 Mamy:
@@ -604,12 +652,11 @@ W tej metodzie ewaluujemy sieć:
                         for (x, y) in test_data]
         return sum(int(x == y) for (x, y) in test_results)
 \end{minted}
-A ta zwraca $\partial C_x / \partial$
+A ta zwraca $\partial C_x / \partial$, która upraszcza się do prostej różnicy:
 \begin{minted}{python}
     def cost_derivative(self, output_activations, y):
         return (output_activations-y)
 \end{minted}
-
 
 Mamy już wszystko gotowe. 
 Trening rozpoczynamy przez wywołanie następującej metody:
@@ -659,10 +706,59 @@ net.SGD(training_data, 30, 10, 100.0, test_data=test_data)
 	\end{subfigure}%
 	\caption{Wprowadzanie zmian od sieci. Źródło: Nielsen (2015)}
 \end{figure}
-
+Zmianę w koszcie możemy estymować w poniższy sposób:
 \begin{eqnarray} 
   \Delta C \approx \frac{\partial C}{\partial w^l_{jk}} \Delta w^l_{jk}.
 \end{eqnarray}
+
+Prześledźmy więc jak przebiegają zmiany:
+\begin{eqnarray} 
+  \Delta a^l_j \approx \frac{\partial a^l_j}{\partial w^l_{jk}} \Delta w^l_{jk}.
+\end{eqnarray}
+
+\begin{figure}[!htpb]
+	\centering
+	\includegraphics[width=.6\linewidth]{figures/tikz26}
+	\caption{Wprowadzanie zmian do sieci. Źródło: Nielsen (2015)}
+\end{figure}
+Mamy:
+\begin{eqnarray}
+  \Delta a^{l+1}_q \approx \frac{\partial a^{l+1}_q}{\partial a^l_j} \Delta a^l_j.
+\end{eqnarray}
+Podstawiając:
+\begin{eqnarray}
+  \Delta a^{l+1}_q \approx \frac{\partial a^{l+1}_q}{\partial a^l_j} \frac{\partial a^l_j}{\partial w^l_{jk}} \Delta w^l_{jk}.
+\end{eqnarray}
+Idąc tym tokiem:
+\begin{eqnarray}
+  \Delta C \approx \frac{\partial C}{\partial a^L_m} 
+  \frac{\partial a^L_m}{\partial a^{L-1}_n}
+  \frac{\partial a^{L-1}_n}{\partial a^{L-2}_p} \ldots
+  \frac{\partial a^{l+1}_q}{\partial a^l_j}
+  \frac{\partial a^l_j}{\partial w^l_{jk}} \Delta w^l_{jk},
+\end{eqnarray}
+Jest wiele ścieżek które wpływają na koszt, a my analizowaliśmy tylko jedną! Tak więc:
+\begin{eqnarray} 
+  \Delta C \approx \sum_{mnp\ldots q} \frac{\partial C}{\partial a^L_m} 
+  \frac{\partial a^L_m}{\partial a^{L-1}_n}
+  \frac{\partial a^{L-1}_n}{\partial a^{L-2}_p} \ldots
+  \frac{\partial a^{l+1}_q}{\partial a^l_j} 
+  \frac{\partial a^l_j}{\partial w^l_{jk}} \Delta w^l_{jk},
+\end{eqnarray}
+Porównując z $ \Delta C \approx \frac{\partial C}{\partial w^l_{jk}} \Delta w^l_{jk} $ mamy:
+\begin{eqnarray} 
+  \frac{\partial C}{\partial w^l_{jk}} = \sum_{mnp\ldots q} \frac{\partial C}{\partial a^L_m} 
+  \frac{\partial a^L_m}{\partial a^{L-1}_n}
+  \frac{\partial a^{L-1}_n}{\partial a^{L-2}_p} \ldots
+  \frac{\partial a^{l+1}_q}{\partial a^l_j} 
+  \frac{\partial a^l_j}{\partial w^l_{jk}}.
+\end{eqnarray}
+Intuicyjnie, tempo zmian kosztu jest sumą wszystkich ścieżek do siebie.
+\begin{figure}[!htpb]
+	\centering
+	\includegraphics[width=.6\linewidth]{figures/tikz27}
+	\caption{Wprowadzanie zmian do sieci. Źródło: Nielsen (2015)}
+\end{figure}
 
 \section{Usprawnienia procesu uczenia się sieci}
 
