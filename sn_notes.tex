@@ -10,6 +10,7 @@
 \usepackage{tikz}
 \usepackage{pgfplots}
 \usepackage{booktabs}
+\usepackage{subcaption}
 
 \usetikzlibrary{matrix,arrows,automata}
 
@@ -387,8 +388,8 @@ Pierwsze równanie prezentuje się następująco:
 \begin{eqnarray} 
   \delta^L_j = \frac{\partial C}{\partial a^L_j} \sigma'(z^L_j).
 \end{eqnarray}
-Wyrażenie po lewej mierzy jak szybko zmienia się koszt w ostatniej warstwie, a to po prawej robi to samo z aktywacją.
-Dla naszej funkcji $\partial C / \partial a^L_j = (a_j^L-y_j)$.
+Wyrażenie po lewej mierzy jak szybko zmienia się koszt w ostatniej warstwie (tj. jeżeli jakiś neuron ma niewielki wpływ na wyjście, tak zostanie to tam pokazane), a to po prawej robi to samo z aktywacją.
+Dla naszej funkcji $C = \frac{1}{2} \sum_j (y_j-a^L_j)^2$ otrzymamy $\partial C / \partial a^L_j = (a_j^L-y_j)$.
 Możemy wszystko zapisać jako:
 \begin{eqnarray} 
   \delta^L = \nabla_a C \odot \sigma'(z^L),
@@ -440,7 +441,7 @@ Algorytm propagacji wstecznej działa na podstawie poniższych czterech równań
 \end{align}
 
 \begin{algorithm}
-    \caption{Algorytm propagacji wstecznej}
+    \caption{Algorytm propagacji wstecznej -- dla pojedynczej próbki}
     \label{alg:backprop}
     \begin{algorithmic}[1] % The number tells where the line numbering should start
         \Function{Backpropagation}{$x$}
@@ -458,27 +459,28 @@ Algorytm propagacji wstecznej działa na podstawie poniższych czterech równań
     \end{algorithmic}
 \end{algorithm}
 
-Algorytm ten jest często łączony z innymi, np. SGD.
+Algorytm ten jest często łączony z innymi, np. GD.
+W praktyce potrzeba jeszcze pętli po wszystkich minibatchach, a także pętli po wszystkich epokach.
 
 \begin{algorithm}
-    \caption{Algorytm propagacji wstecznej + SGD + minibatch}
+    \caption{Algorytm propagacji wstecznej + GD + minibatch -- dla zestawu próbek w minibatchu}
     \label{alg:backprop_sgf}
     \begin{algorithmic}[1] % The number tells where the line numbering should start
-        \Function{SGD-Backpropagation}{$x$}
+        \Function{SGD-Backpropagation}{$X_m$}
         		\For{$x$ in $X_m$} \Comment{minibatch składający się z $m$ próbek}
 	            \State $a^{x,1} \gets x$ \Comment{wejście jest \emph{wyjściem} pierwszej warstwy}
-	            	\For{$l \gets {2, 3, \dots, L}$}
+	            	\For{$l \gets {2, 3, \dots, L}$} \Comment{Feedforward}
 	            		\State $z^{x,l} \gets w^l a^{x,l-1}+b^l$
 	            		\State $a^{x,l} \gets \sigma(z^{x,l})$
 	            	\EndFor
-	            	\State $\delta^{x,L} \gets \nabla_a C \odot \sigma'(z^{x,L})$
-	            	\For{$l \gets {L-1, L-2, \dots, 2}$}
+	            	\State $\delta^{x,L} \gets \nabla_a C \odot \sigma'(z^{x,L})$ \Comment{Błąd na wyjściu}
+	            	\For{$l \gets {L-1, L-2, \dots, 2}$} \Comment{Propagacja wsteczna}
 	            		\State $\delta^{x,l} \gets ((w^{x,l+1})^T \delta^{x,l+1}) \odot \sigma'(z^{x,l})$         
 	            	\EndFor
-	            	\State $\frac{\partial C}{\partial w^l_{jk}} \gets a^{x,l-1}_k \delta^{x,l_j}$
-	            	\State $\frac{\partial C}{\partial b^l_j} \gets \delta^{x,l_j}$
+%	            	\State $\frac{\partial C}{\partial w^l_{jk}} \gets a^{x,l-1}_k \delta^{x,l_j}$
+%	            	\State $\frac{\partial C}{\partial b^l_j} \gets \delta^{x,l_j}$
 	         \EndFor
-	         \For{$l \gets {L, L-2, \dots, 2}$}
+	         \For{$l \gets {L, L-2, \dots, 2}$} \Comment{Spadek gradientu}
 	         	\State $w^l \gets w^l-\frac{\eta}{m} \sum_x \delta^{x,l} (a^{x,l-1})^T$
 	         	\State $b^l \gets b^l-\frac{\eta}{m}
   \sum_x \delta^{x,l}$
@@ -625,6 +627,42 @@ net.SGD(training_data, 30, 10, 0.001, test_data=test_data)
 net = Network([784, 30, 10])
 net.SGD(training_data, 30, 10, 100.0, test_data=test_data)	
 \end{minted}
+
+\subsection{Intuicja za propagacją wsteczną}
+
+
+\begin{figure}[!htpb]
+	\begin{subfigure}{.5\textwidth}
+	  \centering
+	  \includegraphics[width=.95\linewidth]{figures/tikz22}
+	  \caption{Wprowadźmy pewną zmianę $\Delta w^l_{jk}$ do wagi w sieci $w^l_{jk}$.}
+	  \label{fig:sfig1}
+	\end{subfigure}%
+	\begin{subfigure}{.5\textwidth}
+	  \centering
+	  \includegraphics[width=.95\linewidth]{figures/tikz23}
+	  \caption{Zmiana ta spowoduję zmianę na aktywacji sąsiedniego neuronu.}
+	  \label{fig:sfig1}
+	\end{subfigure}
+	
+	\begin{subfigure}{.5\textwidth}
+	  \centering
+	  \includegraphics[width=.95\linewidth]{figures/tikz24}
+	  \caption{To z kolei spowoduję zmianę na wszystkich aktywacjach kolejnych neuronów itd.}
+	  \label{fig:sfig1}
+	\end{subfigure}%
+	\begin{subfigure}{.5\textwidth}
+	  \centering
+	  \includegraphics[width=.95\linewidth]{figures/tikz25}
+	  \caption{Finalnie, zmieni się również koszt.}
+	  \label{fig:sfig1}
+	\end{subfigure}%
+	\caption{Wprowadzanie zmian od sieci. Źródło: Nielsen (2015)}
+\end{figure}
+
+\begin{eqnarray} 
+  \Delta C \approx \frac{\partial C}{\partial w^l_{jk}} \Delta w^l_{jk}.
+\end{eqnarray}
 
 \section{Usprawnienia procesu uczenia się sieci}
 
