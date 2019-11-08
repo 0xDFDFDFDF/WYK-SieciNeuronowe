@@ -23,10 +23,10 @@
 \newcommand{\TITLE}[1]{\item[#1]}
 \renewcommand{\algorithmiccomment}[1]{$/\!/$ \parbox[t]{4.5cm}{\raggedright #1}}
 % ugly hack for for/while
-\newbox\fixbox
-\renewcommand{\algorithmicdo}{\setbox\fixbox\hbox{\ {} }\hskip-\wd\fixbox}
+%\newbox\fixbox
+%\renewcommand{\algorithmicdo}{\setbox\fixbox\hbox{\ {} }\hskip-\wd\fixbox}
 % end of hack
-\newcommand{\algcost}[2]{\strut\hfill\makebox[1.5cm][l]{#1}\makebox[4cm][l]{#2}}
+%\newcommand{\algcost}[2]{\strut\hfill\makebox[1.5cm][l]{#1}\makebox[4cm][l]{#2}}
 
 
 
@@ -445,16 +445,15 @@ Algorytm propagacji wstecznej działa na podstawie poniższych czterech równań
     \begin{algorithmic}[1] % The number tells where the line numbering should start
         \Function{Backpropagation}{$x$}
             \State $a^1 \gets x$ \Comment{wejście jest \emph{wyjściem} pierwszej warstwy}
-            	\For{$l \gets {2, 3, \dots, L}$}
+            	\For{$l \gets {2, 3, \dots, L}$} \Comment{Feed-forward}
             		\State $z^{l} \gets w^l a^{l-1}+b^l$
             		\State $a^{l} \gets \sigma(z^{l})$
             	\EndFor
-            	\State $\delta^{L} \gets \nabla_a C \odot \sigma'(z^L)$
-            	\For{$l \gets {L-1, L-2, \dots, 2}$}
+            	\State $\delta^{L} \gets \nabla_a C \odot \sigma'(z^L)$ \Comment{Błąd na wyjściu}
+            	\For{$l \gets {L-1, L-2, \dots, 2}$} \Comment{Propagacja wsteczna}
             		\State $\delta^{l} \gets ((w^{l+1})^T \delta^{l+1}) \odot \sigma'(z^{l})$         
             	\EndFor
-            	\State $\frac{\partial C}{\partial w^l_{jk}} \gets a^{l-1}_k \delta^l_j$
-            	\State $\frac{\partial C}{\partial b^l_j} \gets \delta^l_j$
+            	\State \Return $\frac{\partial C}{\partial w^l_{jk}} \gets a^{l-1}_k \delta^l_j$, $\frac{\partial C}{\partial b^l_j} \gets \delta^l_j$ \Comment{Wyjście}
         \EndFunction
     \end{algorithmic}
 \end{algorithm}
