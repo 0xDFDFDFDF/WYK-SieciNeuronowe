@@ -875,36 +875,39 @@ Generalizacja entropii krzyżowej na wiele neuronów wygląda następująco:
 %
 %
 \subsection{Softmax}
-
-
+Rodzaj warstwy, w którym wyjścia mają następującą aktywację:
 \begin{eqnarray} 
   a^L_j = \frac{e^{z^L_j}}{\sum_k e^{z^L_k}},
 \end{eqnarray}
 \begin{eqnarray}
   \sum_j a^L_j & = & \frac{\sum_j e^{z^L_j}}{\sum_k e^{z^L_k}} = 1.
 \end{eqnarray}
+Warto zauważyć, że sumują się zawsze do jedynki, przez co wyjścia można interpretować jak rozkład prawdopodobieństwa.
 
 \subsection{Regularyzacja}
+Rozpatrzmy następujący \emph{dodatek} do funkcji kosztu:
 \begin{eqnarray} C = -\frac{1}{n} \sum_{xj} \left[ y_j \ln a^L_j+(1-y_j) \ln
 (1-a^L_j)\right] + \frac{\lambda}{2n} \sum_w w^2.
 \end{eqnarray}
-
+Penalizuje on nadmiernie dopasowane funkcje (na przykład premiowana będzie regresja liniowa wobec skomplikowanego wielomianu).
+Co ważne, działa z dowolną funkcją kosztu!
 \begin{eqnarray} C = \frac{1}{2n} \sum_x \|y-a^L\|^2 +
   \frac{\lambda}{2n} \sum_w w^2.
 \end{eqnarray}
-
+Regularyzacja $\mathcal{L}_2:$
 \begin{eqnarray}  C = C_0 + \frac{\lambda}{2n}
 \sum_w w^2,
 \end{eqnarray}
-
+Regularyzacja $\mathcal{L}_1:$
 \begin{eqnarray}  C = C_0 + \frac{\lambda}{n} \sum_w |w|.
 \end{eqnarray}
 
 \subsection{Inicjalizacja wag}
+(znormalizowany Gauss...)
 
 \subsection{Optymalizacja hiperparametrów}
 
-Tangens hiperboliczny
+(...)
 
 \subsection{Inne funkcje aktywacji}
 \begin{eqnarray}
