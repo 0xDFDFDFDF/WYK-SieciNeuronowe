@@ -146,7 +146,17 @@ Gładkość implikuje też inne właściwości -- małe zmiany $\Delta w_j$ oraz
 W ogólności funkcję $f$ postaci $f(w \cdot x + b)$ będziemy nazywać \textbf{funkcją aktywacji}.
 Sieci wykorzystujące sigmoidalną funkcję aktywacji nazywane są czasami \textbf{wielowarstwowymi perceptronami} (ang. \emph{MLP}).
 Funkcja sigmoidalna ma też bardzo ładną pochodną: $\sigma'(z) = \sigma(z)(1-\sigma(z))$.
-
+\begin{align}
+\dfrac{d}{dz} \sigma(z) &= \dfrac{d}{dz} \left[ \dfrac{1}{1 + e^{-z}} \right] \\
+&= \dfrac{d}{dz} \left( 1 + \mathrm{e}^{-z} \right)^{-1} \\
+&= -(1 + e^{-z})^{-2}(-e^{-z}) \\
+&= \dfrac{e^{-z}}{\left(1 + e^{-z}\right)^2} \\
+&= \dfrac{1}{1 + e^{-z}\ } \cdot \dfrac{e^{-z}}{1 + e^{-z}}  \\
+&= \dfrac{1}{1 + e^{-z}\ } \cdot \dfrac{(1 + e^{-z}) - 1}{1 + e^{-z}}  \\
+&= \dfrac{1}{1 + e^{-z}\ } \cdot \left( \dfrac{1 + e^{-z}}{1 + e^{-z}} - \dfrac{1}{1 + e^{-z}} \right) \\
+&= \dfrac{1}{1 + e^{-z}\ } \cdot \left( 1 - \dfrac{1}{1 + e^{-z}} \right) \\
+&= \sigma(z) \cdot (1 - \sigma(z))
+\end{align}
 
 \subsection{Architektura sieci neuronowej}
 Sieć neuronowa składa się, w ogólności, z trzech rodzajów warstw: \textbf{wejściowej}, \textbf{ukrytych}, oraz \textbf{wyjściowej}.
@@ -271,7 +281,7 @@ Nie ma żadnych przeszkód do zastosowania tego algorytmu dla naszej sieci:
 \subsection{Stochastyczny spadek gradientu}
 
 Zauważmy, że funkcja kosztu jest postaci $C = \frac{1}{n} \sum_x C_x$, przez co średni koszt jest równy $C_x \equiv \frac{\|y(x)-a\|^2}{2}$ dla każdej porcji danych.
-W praktyce nie liczy się gradientu dla każdej porcji $\nabla C_x$ i jej uśrednia $\nabla C = \frac{1}{n}\sum_x \nabla C_x$ -- trwa to zbyt długo.
+W praktyce liczy się gradient dla każdej porcji $\nabla C_x$, a następnie uśrednia się je $\nabla C = \frac{1}{n}\sum_x \nabla C_x$ -- jednak trwa to zbyt długo.
 \textbf{Stochastyczny spadek gradientu} pozwala na uniknięcie tego problemu -- liczymy gradient dla losowo wybranych $m$ porcji danych.
 Oznaczamy je jako $X_1, X_2, \ldots, X_m$ i nazywamy \textbf{minipróbką} (ang. \emph{mini-batch}).
 Jeżeli $m$ będzie wystarczająco duże, to:
