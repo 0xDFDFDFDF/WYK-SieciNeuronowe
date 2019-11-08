@@ -20,8 +20,8 @@
 
 
 % Cormen's cost analysis
-\newcommand{\TITLE}[1]{\item[#1]}
-\renewcommand{\algorithmiccomment}[1]{$/\!/$ \parbox[t]{4.5cm}{\raggedright #1}}
+%\newcommand{\TITLE}[1]{\item[#1]}
+%\renewcommand{\algorithmiccomment}[1]{$/\!/$ \parbox[t]{4.5cm}{\raggedright #1}}
 % ugly hack for for/while
 %\newbox\fixbox
 %\renewcommand{\algorithmicdo}{\setbox\fixbox\hbox{\ {} }\hskip-\wd\fixbox}
@@ -453,7 +453,7 @@ Algorytm propagacji wstecznej działa na podstawie poniższych czterech równań
             	\For{$l \gets {L-1, L-2, \dots, 2}$} \Comment{Propagacja wsteczna}
             		\State $\delta^{l} \gets ((w^{l+1})^T \delta^{l+1}) \odot \sigma'(z^{l})$         
             	\EndFor
-            	\State \Return $\frac{\partial C}{\partial w^l_{jk}} \gets a^{l-1}_k \delta^l_j$, $\frac{\partial C}{\partial b^l_j} \gets \delta^l_j$ \Comment{Wyjście}
+            	\State \Return $\frac{\partial C}{\partial w^l_{jk}} \gets a^{l-1}_k \delta^l_j$ \textbf{and} $\frac{\partial C}{\partial b^l_j} \gets \delta^l_j$ \Comment{Wyjście}
         \EndFunction
     \end{algorithmic}
 \end{algorithm}
@@ -465,7 +465,7 @@ Algorytm ten jest często łączony z innymi, np. SGD.
     \label{alg:backprop_sgf}
     \begin{algorithmic}[1] % The number tells where the line numbering should start
         \Function{SGD-Backpropagation}{$x$}
-        		\For{$x$ in $X_m$} \Comment{minibatch $m$}
+        		\For{$x$ in $X_m$} \Comment{minibatch składający się z $m$ próbek}
 	            \State $a^{x,1} \gets x$ \Comment{wejście jest \emph{wyjściem} pierwszej warstwy}
 	            	\For{$l \gets {2, 3, \dots, L}$}
 	            		\State $z^{x,l} \gets w^l a^{x,l-1}+b^l$
@@ -493,7 +493,7 @@ Algorytm ten jest często łączony z innymi, np. SGD.
 Wejdź na tą\footnote{\url{https://colab.research.google.com/drive/1sVY_zZscj5Xa9XWRrQxf5bBqiv4C4Bwu}} stronę. 
 Jest tu zalążek kodu służący do pobierania danych MNIST -- jest tam 60 tys. przykładów.
 Pełne rozwiązanie znajdziesz tutaj\footnote{\url{https://colab.research.google.com/drive/1ngZmy01o3GtuwWUj4p5Xrbw7dQd7nd3D}}.
-Oryginalny kod jest wzięty z tej\footnote{\url{https://github.com/mnielsen/neural-networks-and-deep-learning.git}} strony.
+Oryginalny kod jest wzięty z tej\footnote{\url{https://github.com/mnielsen/neural-networks-and-deep-learning.git}} strony, a wersja dla Pythona 3.5, z której korzystamy -- z tej\footnote{\url{https://github.com/MichalDanielDobrzanski/DeepLearningPython35/}}.
 
 \subsection{Kod}
 Zdefiniujmy najpierw funkcję sigmoidalną:
@@ -503,13 +503,13 @@ def sigmoid(z):
 \end{minted}
 oraz jej pochodną
 \begin{minted}{python}
-    def sigmoid_prime(z):
-        """Derivative of the sigmoid function."""
-        return sigmoid(z)*(1-sigmoid(z))
+def sigmoid_prime(z):
+    return sigmoid(z)*(1-sigmoid(z))
 \end{minted}
 Sieć zacznijmy od konstruktora:
 \begin{minted}{python}
 import numpy as np
+import random
 
 class Network(object):
   def __init__(self, sizes):
@@ -529,28 +529,30 @@ gdzie $a$ to wektor aktywacji drugiej warstwy, a $a'$ to wektor aktywacji dla tr
 a następnie zdefiniujmy kolejną metodę:
 \begin{minted}{python}
     def feedforward(self, a):
-	    for b, w in zip(self.biases, self.weights):
-	        a = sigmoid(np.dot(w, a)+b)
-	    return a
+        for b, w in zip(self.biases, self.weights):
+            a = sigmoid(np.dot(w, a)+b)
+        return a
 \end{minted}
 Następnie czas na stochastyczny gradient.
 \begin{minted}{python}
     def SGD(self, training_data, epochs, mini_batch_size, eta,
             test_data=None):
-        if test_data: n_test = len(test_data)
+        training_data = list(training_data)
         n = len(training_data)
-        for j in xrange(epochs):
+        if test_data:
+            test_data = list(test_data)
+            n_test = len(test_data)
+        for j in range(epochs):
             random.shuffle(training_data)
             mini_batches = [
                 training_data[k:k+mini_batch_size]
-                for k in xrange(0, n, mini_batch_size)]
+                for k in range(0, n, mini_batch_size)]
             for mini_batch in mini_batches:
                 self.update_mini_batch(mini_batch, eta)
             if test_data:
-                print "Epoch {0}: {1} / {2}".format(
-                    j, self.evaluate(test_data), n_test)
+                print("Epoch {} : {} / {}".format(j,self.evaluate(test_data),n_test));
             else:
-                print "Epoch {0} complete".format(j)
+                print("Epoch {} complete".format(j))
 \end{minted}
 Pod zmienną \mintinline{python}{training_data} kryje się lista krotek postaci $(x, y)$, co reprezentuje odpowiednio cyfry do rozpoznania wraz z ich odpowiednimi oznaczeniami.
 Zmienna \mintinline{python}{test_data} pozwala na ewaluację sieci po każdej epoce.
@@ -563,9 +565,9 @@ W każdej epoce kod partycjonuje dane wejściowe na minipróbki, a każda z nich
             delta_nabla_b, delta_nabla_w = self.backprop(x, y)
             nabla_b = [nb+dnb for nb, dnb in zip(nabla_b, delta_nabla_b)]
             nabla_w = [nw+dnw for nw, dnw in zip(nabla_w, delta_nabla_w)]
-        self.weights = [w-(eta/len(mini_batch))*nw 
+        self.weights = [w-(eta/len(mini_batch))*nw
                         for w, nw in zip(self.weights, nabla_w)]
-        self.biases = [b-(eta/len(mini_batch))*nb 
+        self.biases = [b-(eta/len(mini_batch))*nb
                        for b, nb in zip(self.biases, nabla_b)]
 \end{minted}
 Teraz czas na mechanizm propagacji wstecznej:
@@ -573,7 +575,6 @@ Teraz czas na mechanizm propagacji wstecznej:
     def backprop(self, x, y):
         nabla_b = [np.zeros(b.shape) for b in self.biases]
         nabla_w = [np.zeros(w.shape) for w in self.weights]
-        # feedforward
         activation = x
         activations = [x] # list to store all the activations, layer by layer
         zs = [] # list to store all the z vectors, layer by layer
@@ -586,7 +587,7 @@ Teraz czas na mechanizm propagacji wstecznej:
             sigmoid_prime(zs[-1])
         nabla_b[-1] = delta
         nabla_w[-1] = np.dot(delta, activations[-2].transpose())
-        for l in xrange(2, self.num_layers):
+        for l in range(2, self.num_layers):
             z = zs[-l]
             sp = sigmoid_prime(z)
             delta = np.dot(self.weights[-l+1].transpose(), delta) * sp
